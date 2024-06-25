@@ -1,0 +1,59 @@
+name: deploy
+on:
+  push:
+    branches: ["master"]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Github action IP 가져오기
+        id: publicip
+        run: |
+          response=$(curl -s canhazip.com)
+          echo "ip=$response" >> "$GITHUB_OUTPUT"
+
+      - name: AWS Credentials 설정
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+
+      - name: Github Actions IP를 EC2 Security Group에 추가
+        run: |
+          aws ec2 authorize-security-group-ingress \
+            --group-id ${{ secrets.AWS_SECURITY_GROUP_ID }} \
+            --protocol tcp \
+            --port ${{ secrets.REMOTE_SSH_PORT }} \
+            --cidr ${{ steps.publicip.outputs.ip }}/32
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+
+      - name: SSH로 EC2에 접근해서 배포 작업 실행
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.REMOTE_SSH_HOST }}
+          username: ${{ secrets.REMOTE_SSH_USERNAME }}
+          key: ${{ secrets.REMOTE_SSH_KEY }}
+          port: ${{ secrets.REMOTE_SSH_PORT }}
+          script: |
+            cd ~/BE
+            git pull origin master
+            echo "${{ secrets.ENV }}" > .env
+            sudo docker compose down --rmi all
+            sudo docker compose up --build -d
+
+      - name: EC2 Security Group에 추가 했던 Github Actions IP 제거
+        if: ${{ always() }}
+        run: |
+          aws ec2 revoke-security-group-ingress \
+            --group-id ${{ secrets.AWS_SECURITY_GROUP_ID }} \
+            --protocol tcp \
+            --port ${{ secrets.REMOTE_SSH_PORT }} \
+            --cidr ${{ steps.publicip.outputs.ip }}/32
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
