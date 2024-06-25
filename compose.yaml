@@ -1,0 +1,8 @@
+services:
+  express_app:
+    build: .
+    command: pm2-runtime start app.js --name "pogakco-backend"
+    ports:
+      - 3000:3000
+    env_file:
+      - .env
