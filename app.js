@@ -17,6 +17,3 @@ app.listen(port);
 
 app.use("/api", userRouter);
 
-app.get("/", async (req, res) => {
-  return res.send("Hello World!");
-});
