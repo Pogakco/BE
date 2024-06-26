@@ -1,9 +1,8 @@
 import mysql from "mysql2/promise";
-
-const isDevMode = process.env.NODE_ENV === "development";
+import { IS_DEV_MODE } from "../constants.js";
 
 export const poolOption = {
-  host: isDevMode ? "localhost" : process.env.DB_HOST,
+  host: IS_DEV_MODE ? "localhost" : process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
