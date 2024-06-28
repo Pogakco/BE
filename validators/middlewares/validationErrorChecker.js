@@ -9,7 +9,7 @@ const validationErrorChecker = (req, res, next) => {
 
   return res
     .status(StatusCodes.BAD_REQUEST)
-    .json({ error: errors.array()[0].msg });
+    .json({ message: errors.array()[0].msg });
 };
 
 export default validationErrorChecker;
