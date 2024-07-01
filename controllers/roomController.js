@@ -5,16 +5,11 @@ import { DEFAULT_LIMIT, DEFAULT_PAGE } from "../constants.js";
 
 const roomController = {
   getRooms: errorHandler(async (req, res) => {
-    const {
-      is_running,
-      page = DEFAULT_PAGE,
-      limit = DEFAULT_LIMIT,
-    } = req.query;
+    const { page = DEFAULT_PAGE, limit = DEFAULT_LIMIT } = req.query;
     const { connection } = req;
 
     const rooms = await roomService.getRooms({
       connection,
-      is_running,
       page,
       limit,
     });
