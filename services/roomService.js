@@ -1,12 +1,13 @@
 import roomRepository from "../repositories/roomRepository.js";
 
 const roomService = {
-  async getRooms({ connection, page, limit }) {
+  async getRooms({ connection, page, limit, is_running }) {
     const offset = (page - 1) * limit;
     const { data, totalElements } = await roomRepository.findAllRooms({
       connection,
       offset,
       limit,
+      is_running,
     });
 
     return {
@@ -15,7 +16,7 @@ const roomService = {
         currentPage: parseInt(page),
         totalPages: Math.ceil(totalElements / limit),
         totalElements,
-        limit: parseInt(page),
+        limit: parseInt(limit),
       },
     };
   },
