@@ -4,6 +4,7 @@ import express from "express";
 import checkDBConnection from "./db/helpers/checkDBConnection.js";
 import convertSnakeToCamelResponse from "./middlewares/convertSnakeToCamelResponse.js";
 import userRouter from "./routers/userRouter.js";
+import roomRouter from "./routers/roomRouter.js";
 
 checkDBConnection();
 
@@ -16,4 +17,4 @@ app.use(cookieParser());
 app.listen(port);
 
 app.use("/api", userRouter);
-
+app.use("/", roomRouter);
