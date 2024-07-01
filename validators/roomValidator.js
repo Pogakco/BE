@@ -16,7 +16,10 @@ const createPageChain = () => {
 };
 
 const createLimitChain = () => {
-  return query("limit").optional().isInt();
+  return query("limit")
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage("limit는 1 이상의 정수입니다.");
 };
 
 const roomValidator = {
