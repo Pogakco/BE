@@ -8,13 +8,15 @@ import roomRouter from "./routers/roomRouter.js";
 
 checkDBConnection();
 
-const app = express();
 const port = 3000;
+
+const app = express();
 
 app.use(express.json());
 app.use(convertSnakeToCamelResponse());
 app.use(cookieParser());
-app.listen(port);
 
 app.use("/api", userRouter);
-app.use("/", roomRouter);
+app.use("/rooms", roomRouter);
+
+app.listen(port);
