@@ -1,4 +1,4 @@
-const roomRepository = {
+const roomListRepository = {
   async findAllRooms({ connection, offset, limit, is_running }) {
     let SQL = `SELECT SQL_CALC_FOUND_ROWS
         rooms.id,
@@ -20,14 +20,17 @@ const roomRepository = {
       GROUP BY rooms.id
       `;
 
-    if (is_running === 'false') {
+    if (is_running === "false") {
       SQL += `HAVING timers.is_running = 0
       `;
     }
 
     SQL += "LIMIT ? OFFSET ?;";
 
-    const [data] = await connection.query(SQL, [parseInt(limit), parseInt(offset)]);
+    const [data] = await connection.query(SQL, [
+      parseInt(limit),
+      parseInt(offset),
+    ]);
 
     const [totalCount] = await connection.query("SELECT FOUND_ROWS()");
     const totalElements = totalCount[0]["FOUND_ROWS()"];
@@ -39,4 +42,4 @@ const roomRepository = {
   },
 };
 
-export default roomRepository;
+export default roomListRepository;

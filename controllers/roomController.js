@@ -1,6 +1,6 @@
 import { StatusCodes } from "http-status-codes";
 import errorHandler from "./helpers/errorHandler.js";
-import roomService from "../services/roomService.js";
+import roomListService from "../services/roomListService.js";
 import { DEFAULT_LIMIT, DEFAULT_PAGE } from "../constants.js";
 
 const roomController = {
@@ -12,7 +12,7 @@ const roomController = {
     } = req.query;
     const { connection } = req;
 
-    const rooms = await roomService.getRooms({
+    const rooms = await roomListService.getRooms({
       connection,
       page,
       limit,

@@ -1,9 +1,9 @@
-import roomRepository from "../repositories/roomRepository.js";
+import roomListRepository from "../repositories/roomListRepository.js";
 
-const roomService = {
+const roomListService = {
   async getRooms({ connection, page, limit, is_running }) {
     const offset = (page - 1) * limit;
-    const { data, totalElements } = await roomRepository.findAllRooms({
+    const { data, totalElements } = await roomListRepository.findAllRooms({
       connection,
       offset,
       limit,
@@ -22,4 +22,4 @@ const roomService = {
   },
 };
 
-export default roomService;
+export default roomListService;
