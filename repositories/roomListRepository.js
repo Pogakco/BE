@@ -9,7 +9,6 @@ const roomListRepository = {
         focus_time,
         short_break_time,
         long_break_time,
-        log
         is_running,
         max_participants,
         users.nickname AS ownerName,
