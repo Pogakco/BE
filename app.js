@@ -17,4 +17,4 @@ app.use(cookieParser());
 app.listen(port);
 
 app.use("/api", userRouter);
-app.use("/", roomRouter);
+app.use("/rooms", roomRouter);
