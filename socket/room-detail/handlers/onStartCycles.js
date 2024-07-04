@@ -1,89 +1,55 @@
-import camelcaseKeys from "camelcase-keys";
 import { SOCKET_TIMER_EVENTS } from "../../../constants.js";
 import pool from "../../../db/pool.js";
-import roomService from "../../../services/roomService.js";
 import timerService from "../../../services/timerService.js";
-import getAllLinkedUserIdsFromNamespace from "../../helpers/getAllLinkedUserIdsFromNamespace.js";
-import {
-  calculateOnePomodoroMs,
-  calculateTimerTotalMs,
-} from "../helpers/calculateMs.js";
+import getFinishCyclesTimeout from "../helpers/getFinishCyclesTimeout.js";
+import getPomodoroInterval from "../helpers/getPomodoroInterval.js";
 import getRoomIdFromNamespace from "../helpers/getRoomIdFromNamespace.js";
+import getRoomInfoSafety from "../helpers/getRoomInfoSafety.js";
+import startTimer from "../helpers/startTimer.js";
 
 const onStartCycles = async (socket) => {
   const connection = await pool.getConnection();
 
-  const roomDetailNamespace = socket.nsp;
-  const roomId = getRoomIdFromNamespace(roomDetailNamespace);
-  const allLinkedUserIds =
-    getAllLinkedUserIdsFromNamespace(roomDetailNamespace);
-
-  const { totalCycles, focusTime, shortBreakTime, longBreakTime, isRunning } =
-    camelcaseKeys(await roomService.getRoomById({ connection, id: roomId }));
-
-  if (isRunning) {
+  const { roomInfo, isErrorGetRoomInfo } = await getRoomInfoSafety({
+    connection,
+    socket,
+  });
+  if (isErrorGetRoomInfo) {
     return;
   }
 
-  const startedAt = await timerService.startTimer({
+  const { clearPomodoroInterval, startPomodoroInterval } = getPomodoroInterval({
     connection,
-    roomId,
-    userIds: allLinkedUserIds,
+    socket,
+    roomInfo,
   });
+  const { clearFinishCyclesTimeout, startFinishCyclesTimeout } =
+    getFinishCyclesTimeout({ connection, socket, roomInfo });
 
-  roomDetailNamespace
-    .to(roomId)
-    .emit(SOCKET_TIMER_EVENTS.SYNC_STARTED_AT, startedAt);
-  roomDetailNamespace
-    .to(roomId)
-    .emit(SOCKET_TIMER_EVENTS.SYNC_IS_RUNNING, true);
-
-  let pomodoroCount = 0;
-  const intervalOnFinishedPomodoro = setInterval(async () => {
-    console.log(pomodoroCount + 1, "뽀모도로 끝");
-
-    const { increasedCurrentCycles, allParticipants } =
-      await timerService.finishPomodoro({ connection, roomId });
-
-    roomDetailNamespace
-      .to(roomId)
-      .emit(
-        SOCKET_TIMER_EVENTS.SYNC_ALL_PARTICIPANTS,
-        camelcaseKeys(allParticipants)
-      );
-    roomDetailNamespace
-      .to(roomId)
-      .emit(SOCKET_TIMER_EVENTS.SYNC_CURRENT_CYCLES, increasedCurrentCycles);
-
-    pomodoroCount += 1;
-
-    if (pomodoroCount === totalCycles) {
-      clearInterval(intervalOnFinishedPomodoro);
+  try {
+    if (roomInfo.isRunning) {
+      return;
     }
-  }, calculateOnePomodoroMs({ focusTime, shortBreakTime }));
+    await startTimer({ connection, socket });
+    await Promise.all([startPomodoroInterval(), startFinishCyclesTimeout()]);
+  } catch (error) {
+    clearPomodoroInterval();
+    clearFinishCyclesTimeout();
 
-  setTimeout(async () => {
-    console.log("모든 사이클 끝");
-
-    roomDetailNamespace
-      .to(roomId)
-      .emit(SOCKET_TIMER_EVENTS.SYNC_IS_RUNNING, false);
-    roomDetailNamespace
-      .to(roomId)
-      .emit(SOCKET_TIMER_EVENTS.SYNC_CURRENT_CYCLES, 0);
-
-    const { allParticipants } = await timerService.finishTimer({
-      connection,
-      roomId,
+    socket.emit(SOCKET_TIMER_EVENTS.ERROR, {
+      message: "타이머 소켓 오류가 발생했습니다.",
     });
+    console.error(error);
 
-    roomDetailNamespace
-      .to(roomId)
-      .emit(
-        SOCKET_TIMER_EVENTS.SYNC_ALL_PARTICIPANTS,
-        camelcaseKeys(allParticipants)
-      );
-  }, calculateTimerTotalMs({ focusTime, shortBreakTime, totalCycles, longBreakTime }));
+    await timerService
+      .finishTimer({
+        connection,
+        roomId: getRoomIdFromNamespace(socket.nsp),
+      })
+      .catch(() => {});
+  } finally {
+    connection.release();
+  }
 };
 
 export default onStartCycles;
