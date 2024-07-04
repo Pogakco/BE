@@ -1,5 +1,8 @@
 import camelcaseKeys from "camelcase-keys";
-import { SOCKET_TIMER_EVENTS } from "../../../constants.js";
+import {
+  SOCKET_TIMER_ERRORS,
+  SOCKET_TIMER_EVENTS,
+} from "../../../constants.js";
 import roomService from "../../../services/roomService.js";
 import getRoomIdFromNamespace from "./getRoomIdFromNamespace.js";
 
@@ -17,7 +20,7 @@ const getRoomInfoSafety = async ({ connection, socket }) => {
     roomInfo = camelcaseKeys(data);
   } catch (error) {
     socket.emit(SOCKET_TIMER_EVENTS.ERROR, {
-      message: "타이머 소켓 오류가 발생했습니다.",
+      message: SOCKET_TIMER_ERRORS.DEFAULT,
     });
     console.error(error);
     connection.release();

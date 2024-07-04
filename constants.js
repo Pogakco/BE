@@ -15,3 +15,8 @@ export const SOCKET_TIMER_EVENTS = {
   SYNC_CURRENT_CYCLES: "sync-current-cycles",
   ERROR: "timer-error",
 };
+
+export const SOCKET_TIMER_ERRORS = {
+  DEFAULT: "타이머 소켓에서 오류가 발생했습니다.",
+  IS_NOT_OWNER: "방장만 타이머를 시작할 수 있습니다.",
+};

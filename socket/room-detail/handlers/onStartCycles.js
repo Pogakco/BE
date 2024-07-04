@@ -1,4 +1,7 @@
-import { SOCKET_TIMER_EVENTS } from "../../../constants.js";
+import {
+  SOCKET_TIMER_ERRORS,
+  SOCKET_TIMER_EVENTS,
+} from "../../../constants.js";
 import pool from "../../../db/pool.js";
 import timerService from "../../../services/timerService.js";
 import getUserIdFromSocket from "../../helpers/getUserIdFromSocket.js";
@@ -37,7 +40,7 @@ const onStartCycles = async (socket) => {
     const userId = getUserIdFromSocket(socket);
     if (!userId || Number(userId) !== Number(ownerId)) {
       socket.emit(SOCKET_TIMER_EVENTS.ERROR, {
-        message: "방장만 타이머를 시작할 수 있습니다.",
+        message: SOCKET_TIMER_ERRORS.IS_NOT_OWNER,
       });
       return;
     }
@@ -49,7 +52,7 @@ const onStartCycles = async (socket) => {
     clearFinishCyclesTimeout();
 
     socket.emit(SOCKET_TIMER_EVENTS.ERROR, {
-      message: "타이머 소켓 오류가 발생했습니다.",
+      message: SOCKET_TIMER_ERRORS.DEFAULT,
     });
     console.error(error);
 
