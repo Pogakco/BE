@@ -1,14 +1,13 @@
 import roomRepository from "../repositories/roomRepository.js";
-import isEmptyArray from "../utils/isEmptyArray.js";
 
 const roomService = {
   async getRoomById({ connection, roomId }) {
-    const data = await roomRepository.findRoomById({
+    const room = await roomRepository.findRoomById({
       connection,
       roomId,
     });
 
-    return data;
+    return room;
   },
 
   async getUsersInRoom({ connection, roomId }) {
