@@ -9,7 +9,7 @@ const roomController = {
     const {
       page = DEFAULT_PAGE,
       limit = DEFAULT_LIMIT,
-      is_running,
+      is_running: isRunning,
     } = req.query;
     const { connection } = req;
 
@@ -17,7 +17,7 @@ const roomController = {
       connection,
       page,
       limit,
-      is_running,
+      isRunning,
     });
 
     return res.status(StatusCodes.OK).json(rooms);

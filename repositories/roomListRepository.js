@@ -1,5 +1,5 @@
 const roomListRepository = {
-  async findAllRooms({ connection, offset, limit, is_running }) {
+  async findAllRooms({ connection, offset, limit, isRunning }) {
     let SQL = `SELECT SQL_CALC_FOUND_ROWS
         rooms.id,
         room_title,
@@ -21,8 +21,11 @@ const roomListRepository = {
       GROUP BY rooms.id
       `;
 
-    if (is_running === "false") {
+    if (isRunning === "false") {
       SQL += `HAVING timers.is_running = 0
+      `;
+    } else if (isRunning === "true") {
+      SQL += `HAVING timers.is_running = 1
       `;
     }
 
