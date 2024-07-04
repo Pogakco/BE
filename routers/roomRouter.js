@@ -10,6 +10,7 @@ router.get(
   [...roomValidator.getAllRoomsValidator()],
   roomController.getRooms
 );
+
 router.get(
   "/:id",
   [...roomValidator.getRoomDetailValidatr()],
