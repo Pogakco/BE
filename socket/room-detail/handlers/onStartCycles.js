@@ -1,6 +1,7 @@
 import { SOCKET_TIMER_EVENTS } from "../../../constants.js";
 import pool from "../../../db/pool.js";
 import timerService from "../../../services/timerService.js";
+import getUserIdFromSocket from "../../helpers/getUserIdFromSocket.js";
 import getFinishCyclesTimeout from "../helpers/getFinishCyclesTimeout.js";
 import getPomodoroInterval from "../helpers/getPomodoroInterval.js";
 import getRoomIdFromNamespace from "../helpers/getRoomIdFromNamespace.js";
@@ -27,9 +28,20 @@ const onStartCycles = async (socket) => {
     getFinishCyclesTimeout({ connection, socket, roomInfo });
 
   try {
-    if (roomInfo.isRunning) {
+    const { isRunning, ownerId } = roomInfo;
+
+    if (isRunning) {
       return;
     }
+
+    const userId = getUserIdFromSocket(socket);
+    if (!userId || Number(userId) !== Number(ownerId)) {
+      socket.emit(SOCKET_TIMER_EVENTS.ERROR, {
+        message: "방장만 타이머를 시작할 수 있습니다.",
+      });
+      return;
+    }
+
     await startTimer({ connection, socket });
     await Promise.all([startPomodoroInterval(), startFinishCyclesTimeout()]);
   } catch (error) {

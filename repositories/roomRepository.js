@@ -16,6 +16,7 @@ const roomRepository = {
         is_running,
         max_participants,
         COUNT(user_rooms.user_id) AS currentParticipants,
+        users.id AS ownerId,
         users.nickname AS ownerName,
         users.profile_image_url AS ownerProfileImageUrl
       FROM rooms
