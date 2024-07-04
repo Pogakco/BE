@@ -16,5 +16,5 @@ app.use(convertSnakeToCamelResponse());
 app.use(cookieParser());
 app.listen(port);
 
-app.use("/api", userRouter);
+app.use("/", userRouter);
 app.use("/rooms", roomRouter);
