@@ -12,7 +12,7 @@ const getRoomInfoSafety = async ({ connection, socket }) => {
   try {
     const data = await roomService.getRoomById({
       connection,
-      id: roomId,
+      roomId,
     });
     roomInfo = camelcaseKeys(data);
   } catch (error) {

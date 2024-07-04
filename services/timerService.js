@@ -19,7 +19,7 @@ const timerService = {
 
     const data = await roomRepository.findRoomById({
       connection,
-      id: roomId,
+      roomId,
     });
 
     return data.started_at;
@@ -49,7 +49,7 @@ const timerService = {
     const { current_cycles: currentCycles } = await roomRepository.findRoomById(
       {
         connection,
-        id: roomId,
+        roomId,
       }
     );
 

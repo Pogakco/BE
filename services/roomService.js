@@ -1,13 +1,13 @@
 import roomRepository from "../repositories/roomRepository.js";
 
 const roomService = {
-  async getRoomById({ connection, id }) {
-    const data = await roomRepository.findRoomById({
+  async getRoomById({ connection, roomId }) {
+    const room = await roomRepository.findRoomById({
       connection,
-      id,
+      roomId,
     });
 
-    return data;
+    return room;
   },
 
   async inactiveParticipant({ connection, roomId, userId }) {
