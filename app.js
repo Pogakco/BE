@@ -8,6 +8,7 @@ import convertSnakeToCamelResponse from "./middlewares/convertSnakeToCamelRespon
 import userRouter from "./routers/userRouter.js";
 import createIo from "./socket/helpers/createIo.js";
 import onRoomDetailConnection from "./socket/room-detail/handlers/onRoomDetailConnection.js";
+import roomRouter from "./routers/roomRouter.js";
 
 checkDBConnection();
 
@@ -27,6 +28,7 @@ app.use(express.json());
 app.use(convertSnakeToCamelResponse());
 app.use(cookieParser());
 
-app.use("/api", userRouter);
+app.use("/", userRouter);
+app.use("/rooms", roomRouter);
 
 server.listen(port);
