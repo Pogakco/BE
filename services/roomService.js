@@ -28,6 +28,14 @@ const roomService = {
       users,
     };
   },
+  
+  async inactiveParticipant({ connection, roomId, userId }) {
+    await roomRepository.inactiveParticipant({
+      connection,
+      roomId,
+      userId,
+    });
+  },
 };
 
 export default roomService;
