@@ -14,4 +14,6 @@ router.post("/login", [...userValidator.getLoginValidator()], userController.log
 
 router.post("/logout", [loginRequired], userController.logout);
 
+router.post("/check-email", [...userValidator.getCheckEmailValidator()], userController.checkEmail);
+
 export default router;

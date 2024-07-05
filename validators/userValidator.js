@@ -30,6 +30,10 @@ const userValidator = {
   getLoginValidator() {
     return createValidator(createEmailChain, createPasswordChain);
   },
+
+  getCheckEmailValidator() {
+    return createValidator(createEmailChain);
+  },
 };
 
 export default userValidator;
