@@ -35,7 +35,7 @@ const roomValidator = {
     );
   },
 
-  getRoomDetailValidatr() {
+  getRoomDetailValidator() {
     return createValidator(createRoomIdParamChain);
   },
 };

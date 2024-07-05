@@ -13,13 +13,13 @@ router.get(
 
 router.get(
   "/:id",
-  [...roomValidator.getRoomDetailValidatr()],
+  [...roomValidator.getRoomDetailValidator()],
   roomController.getRoomDetail
 );
 
 router.get(
   "/:id/users",
-  [...roomValidator.getRoomDetailValidatr()],
+  [...roomValidator.getRoomDetailValidator()],
   roomController.getRoomUsers
 );
 
