@@ -23,7 +23,7 @@ const timerRepository = {
 
     await connection.query(SQL, [roomId]);
   },
-  
+
   async updateTimerCurrentCycles({ connection, roomId, currentCycles }) {
     const SQL = `
       UPDATE timers
@@ -34,6 +34,6 @@ const timerRepository = {
 
     await connection.query(SQL, [currentCycles, roomId]);
   },
-}
+};
 
-export default timerRepository
+export default timerRepository;

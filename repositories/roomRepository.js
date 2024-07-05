@@ -69,7 +69,7 @@ const roomRepository = {
         is_active = ?
       WHERE 
         room_id = ?
-`;
+    `;
 
     await connection.query(SQL, [isActive, roomId]);
   },
