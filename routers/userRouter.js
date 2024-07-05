@@ -28,4 +28,10 @@ router.post(
   userController.checkEmail
 );
 
+router.post(
+  "/check-nickname",
+  [...userValidator.getCheckNicknameValidator()],
+  userController.checkNickname
+);
+
 export default router;

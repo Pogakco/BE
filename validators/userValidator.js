@@ -34,6 +34,10 @@ const userValidator = {
   getCheckEmailValidator() {
     return createValidator(createEmailChain);
   },
+
+  getCheckNicknameValidator() {
+    return createValidator(createNicknameChain);
+  },
 };
 
 export default userValidator;
