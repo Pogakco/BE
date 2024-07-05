@@ -10,6 +10,25 @@ const roomService = {
     return room;
   },
 
+  async getUsersInRoom({ connection, roomId }) {
+    const participants = await roomRepository.findParticipants({
+      connection,
+      roomId,
+    });
+    const users = participants.map((user) => ({
+      nickname: user.nickname,
+      profileImageUrl: user.profile_image_url,
+      pomodoroCount: user.pomodoro_count,
+      isActive: user.is_active,
+    }));
+    const activeParticipants = users.filter((user) => user.isActive).length;
+
+    return {
+      activeParticipants,
+      users,
+    };
+  },
+  
   async inactiveParticipant({ connection, roomId, userId }) {
     await roomRepository.inactiveParticipant({
       connection,

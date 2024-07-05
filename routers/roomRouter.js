@@ -11,4 +11,16 @@ router.get(
   roomController.getRooms
 );
 
+router.get(
+  "/:id",
+  [...roomValidator.getRoomDetailValidator()],
+  roomController.getRoomDetail
+);
+
+router.get(
+  "/:id/users",
+  [...roomValidator.getRoomDetailValidator()],
+  roomController.getRoomUsers
+);
+
 export default router;
