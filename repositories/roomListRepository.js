@@ -1,4 +1,15 @@
 const roomListRepository = {
+  async executeQuery({ connection, SQL, values }) {
+    const [data] = await connection.query(SQL, values);
+    const [totalCount] = await connection.query("SELECT FOUND_ROWS()");
+    const totalElements = totalCount[0]["FOUND_ROWS()"];
+
+    return {
+      data,
+      totalElements,
+    };
+  },
+
   async findAllRooms({ connection, offset, limit, isRunning }) {
     let SQL = `SELECT SQL_CALC_FOUND_ROWS
         rooms.id,
@@ -31,18 +42,8 @@ const roomListRepository = {
 
     SQL += "LIMIT ? OFFSET ?;";
 
-    const [data] = await connection.query(SQL, [
-      parseInt(limit),
-      parseInt(offset),
-    ]);
-
-    const [totalCount] = await connection.query("SELECT FOUND_ROWS()");
-    const totalElements = totalCount[0]["FOUND_ROWS()"];
-
-    return {
-      data,
-      totalElements,
-    };
+    const values = [parseInt(limit), parseInt(offset)];
+    return this.executeQuery({ connection, SQL, values });
   },
 
   async findMyRooms({ connection, userId, offset, limit, isRunning }) {
@@ -77,19 +78,8 @@ const roomListRepository = {
 
     SQL += "LIMIT ? OFFSET ?;";
 
-    const [data] = await connection.query(SQL, [
-      userId,
-      parseInt(limit),
-      parseInt(offset),
-    ]);
-
-    const [totalCount] = await connection.query("SELECT FOUND_ROWS()");
-    const totalElements = totalCount[0]["FOUND_ROWS()"];
-
-    return {
-      data,
-      totalElements,
-    };
+    const values = [userId, parseInt(limit), parseInt(offset)];
+    return this.executeQuery({ connection, SQL, values });
   },
 };
 

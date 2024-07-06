@@ -40,7 +40,7 @@ const roomListService = {
         limit: parseInt(limit),
       },
     };
-  }
+  },
 };
 
 export default roomListService;
