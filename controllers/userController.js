@@ -70,6 +70,36 @@ const userController = {
     res.clearCookie(ACCESS_TOKEN_KEY);
     return res.status(StatusCodes.NO_CONTENT).end();
   }),
+
+  checkEmail: errorHandler(async (req, res) => {
+    const { connection } = req;
+    const { email } = req.body;
+
+    const user = await userService.getUserByEmail({ connection, email });
+
+    if (user) {
+      return res
+        .status(StatusCodes.CONFLICT)
+        .json({ message: "이미 존재하는 이메일 입니다." });
+    }
+
+    return res.status(StatusCodes.NO_CONTENT).end();
+  }),
+
+  checkNickname: errorHandler(async (req, res) => {
+    const { connection } = req;
+    const { nickname } = req.body;
+
+    const user = await userService.getUserByNickname({ connection, nickname });
+
+    if (user) {
+      return res
+        .status(StatusCodes.CONFLICT)
+        .json({ message: "이미 존재하는 닉네임 입니다." });
+    }
+
+    return res.status(StatusCodes.NO_CONTENT).end();
+  }),
 };
 
 export default userController;
