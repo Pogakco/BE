@@ -66,6 +66,12 @@ const roomController = {
       isRunning,
     });
 
+    if (myRooms.data.length === 0) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: "참여한 방이 존재하지 않습니다." });
+    }
+
     return res.status(StatusCodes.OK).json(myRooms);
   }),
 };
