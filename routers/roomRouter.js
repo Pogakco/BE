@@ -1,26 +1,34 @@
 import express from "express";
 import roomController from "../controllers/roomController.js";
 import roomValidator from "../validators/roomValidator.js";
+import injectUserId from '../validators/middlewares/injectUserId.js'
+import loginRequired from "../validators/middlewares/loginRequired.js";
 
 const router = express.Router();
 router.use(express.json());
 
 router.get(
   "/",
-  [...roomValidator.getAllRoomsValidator()],
+  [...roomValidator.getAllRoomsValidator(), injectUserId],
   roomController.getRooms
 );
 
 router.get(
   "/:id",
-  [...roomValidator.getRoomDetailValidator()],
+  [...roomValidator.getRoomDetailValidator(), injectUserId],
   roomController.getRoomDetail
 );
 
 router.get(
   "/:id/users",
-  [...roomValidator.getRoomDetailValidator()],
+  [...roomValidator.getRoomDetailValidator(), injectUserId],
   roomController.getRoomUsers
+);
+
+router.get(
+  "/my-rooms",
+  [loginRequired],
+  roomController.getMyRooms
 );
 
 export default router;
