@@ -1,6 +1,14 @@
 import isEmptyArray from "../utils/isEmptyArray.js";
 
 const userRepository = {
+  async findUserById({ connection, userId }) {
+    const SQL = "SELECT * FROM `users` WHERE `id` = ?";
+
+    const [data] = await connection.query(SQL, [userId]);
+
+    return isEmptyArray(data) ? null : data[0];
+  },
+
   async findUserByEmail({ connection, email }) {
     const SQL = "SELECT * FROM `users` WHERE `email` = ?";
 
