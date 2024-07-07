@@ -100,6 +100,14 @@ const userController = {
 
     return res.status(StatusCodes.NO_CONTENT).end();
   }),
+
+  myProfile: errorHandler(async (req, res) => {
+    const { connection, userId } = req;
+
+    const profile = await userService.getUserProfile({ connection, userId });
+
+    return res.status(StatusCodes.OK).json(profile);
+  }),
 };
 
 export default userController;

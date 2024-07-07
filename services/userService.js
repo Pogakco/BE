@@ -4,6 +4,16 @@ import generateSalt from "../helpers/generateSalt.js";
 import userRepository from "../repositories/userRepository.js";
 
 const userService = {
+  async getUserProfile({ connection, userId }) {
+    const data = await userRepository.findUserById({ connection, userId });
+
+    return {
+      email: data.email,
+      nickname: data.nickname,
+      profileImageUrl: data.profile_image_url,
+    };
+  },
+
   async getUserByEmail({ connection, email }) {
     const data = await userRepository.findUserByEmail({ connection, email });
 

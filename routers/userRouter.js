@@ -34,4 +34,6 @@ router.post(
   userController.checkNickname
 );
 
+router.get("/users/me", [loginRequired], userController.myProfile);
+
 export default router;
