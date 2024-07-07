@@ -58,19 +58,13 @@ const roomController = {
     } = req.query;
     const { connection, userId } = req;
 
-    const myRooms = await roomListService.getMyRooms({
+    const myRooms = await roomListService.getRooms({
       connection,
       userId,
       page,
       limit,
       isRunning,
     });
-
-    if (myRooms.data.length === 0) {
-      return res
-        .status(StatusCodes.NOT_FOUND)
-        .json({ message: "참여한 방이 존재하지 않습니다." });
-    }
 
     return res.status(StatusCodes.OK).json(myRooms);
   }),

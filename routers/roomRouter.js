@@ -9,7 +9,7 @@ router.use(express.json());
 
 router.get(
   "/",
-  [...roomValidator.getAllRoomsValidator(), injectUserId],
+  [...roomValidator.getAllRoomsValidator()],
   roomController.getRooms
 );
 
@@ -21,13 +21,13 @@ router.get(
 
 router.get(
   "/:id",
-  [...roomValidator.getRoomDetailValidator(), injectUserId],
+  [...roomValidator.getRoomDetailValidator()],
   roomController.getRoomDetail
 );
 
 router.get(
   "/:id/users",
-  [...roomValidator.getRoomDetailValidator(), injectUserId],
+  [...roomValidator.getRoomDetailValidator()],
   roomController.getRoomUsers
 );
 
