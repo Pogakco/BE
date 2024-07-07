@@ -49,6 +49,25 @@ const roomController = {
     const users = await roomService.getUsersInRoom({ connection, roomId });
     return res.status(StatusCodes.OK).json(users);
   }),
+
+  getMyRooms: errorHandler(async (req, res) => {
+    const {
+      page = DEFAULT_PAGE,
+      limit = DEFAULT_LIMIT,
+      is_running: isRunning,
+    } = req.query;
+    const { connection, userId } = req;
+
+    const myRooms = await roomListService.getRooms({
+      connection,
+      userId,
+      page,
+      limit,
+      isRunning,
+    });
+
+    return res.status(StatusCodes.OK).json(myRooms);
+  }),
 };
 
 export default roomController;
