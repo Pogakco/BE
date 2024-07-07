@@ -1,4 +1,5 @@
 import roomRepository from "../repositories/roomRepository.js";
+import timerRepository from "../repositories/timerRepository.js";
 
 const roomService = {
   async getRoomById({ connection, roomId }) {
@@ -28,13 +29,60 @@ const roomService = {
       users,
     };
   },
-  
+
   async inactiveParticipant({ connection, roomId, userId }) {
     await roomRepository.inactiveParticipant({
       connection,
       roomId,
       userId,
     });
+  },
+
+  async createRoom({
+    connection,
+    roomTitle,
+    userId: ownerId,
+    roomDescription,
+    focusTime,
+    shortBreakTime,
+    longBreakTime,
+    totalCycles,
+    maxParticipants,
+  }) {
+    const room = await roomRepository.createRoom({
+      connection,
+      roomTitle,
+      ownerId,
+      roomDescription,
+      maxParticipants,
+    });
+
+    const roomId = room.insertId;
+
+    const timer = await timerRepository.createTimer({
+      connection,
+      roomId,
+      totalCycles,
+      focusTime,
+      shortBreakTime,
+      longBreakTime,
+    });
+
+    const timerId = timer.insertId;
+
+    await roomRepository.updateRoomTimer({
+      connection,
+      roomId,
+      timerId,
+    });
+
+    await roomRepository.addUserToRoom({
+      connection,
+      userId: ownerId,
+      roomId,
+    });
+
+    return { roomId };
   },
 };
 

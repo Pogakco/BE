@@ -68,6 +68,33 @@ const roomController = {
 
     return res.status(StatusCodes.OK).json(myRooms);
   }),
+
+  createRoom: errorHandler(async (req, res) => {
+    const { connection, userId } = req;
+    const {
+      roomTitle,
+      roomDescription,
+      focusTime,
+      shortBreakTime,
+      longBreakTime,
+      totalCycles,
+      maxParticipants,
+    } = req.body;
+
+    const result = await roomService.createRoom({
+      connection,
+      roomTitle,
+      userId,
+      roomDescription,
+      focusTime,
+      shortBreakTime,
+      longBreakTime,
+      totalCycles,
+      maxParticipants,
+    });
+
+    return res.status(StatusCodes.OK).json(result);
+  }),
 };
 
 export default roomController;

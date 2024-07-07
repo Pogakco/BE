@@ -13,6 +13,12 @@ router.get(
   roomController.getRooms
 );
 
+router.post(
+  "/",
+  [...roomValidator.getCreateRoomValidator(), loginRequired],
+  roomController.createRoom
+);
+
 router.get(
   "/my-rooms",
   [...roomValidator.getAllRoomsValidator(), loginRequired],
