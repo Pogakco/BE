@@ -77,8 +77,8 @@ const createMaxParticipantsChain = () => {
     .notEmpty()
     .withMessage("수용 인원 수를 입력해주세요")
     .bail()
-    .isInt({ min: 1 })
-    .withMessage("수용 인원 수는 최소 1명 이상이어야 합니다.");
+    .isInt({ min: 1, max: 50 })
+    .withMessage("수용 인원 수는 1명에서 50명 사이여야 합니다.");
 };
 
 const roomValidator = {
