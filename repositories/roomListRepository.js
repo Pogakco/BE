@@ -44,13 +44,12 @@ const roomListRepository = {
 
     if (userId) {
       values.unshift(userId);
+      if (isMyRoom) {
+        SQL += "WHERE user_rooms.user_id = ? ";
+        values.unshift(userId);
+      }
     }
-
-    if (userId && isMyRoom) {
-      SQL += "WHERE user_rooms.user_id = ? ";
-      values.unshift(userId);
-    }
-
+    
     SQL += "GROUP BY rooms.id ";
 
     if (isRunning === "false") {
