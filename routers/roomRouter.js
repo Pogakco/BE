@@ -9,7 +9,7 @@ router.use(express.json());
 
 router.get(
   "/",
-  [...roomValidator.getAllRoomsValidator()],
+  [injectUserId, ...roomValidator.getAllRoomsValidator()],
   roomController.getRooms
 );
 

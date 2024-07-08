@@ -1,7 +1,7 @@
 import roomListRepository from "../repositories/roomListRepository.js";
 
 const roomListService = {
-  async getRooms({ connection, page, limit, isRunning, userId }) {
+  async getRooms({ connection, page, limit, isRunning, userId, isMyRoom }) {
     const offset = (page - 1) * limit;
     const { data, totalElements } = await roomListRepository.findRooms({
       connection,
@@ -9,6 +9,7 @@ const roomListService = {
       limit,
       isRunning,
       userId,
+      isMyRoom,
     });
 
     return {

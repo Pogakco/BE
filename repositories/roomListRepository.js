@@ -1,4 +1,13 @@
 const roomListRepository = {
+  isJoinedFieldSQL: `
+    IF (
+      EXISTS (
+        SELECT * FROM user_rooms 
+        WHERE rooms.id = user_rooms.room_id AND 
+          user_rooms.user_id =?
+      ), TRUE, FALSE
+    ) AS isJoined,
+  `,
   async findDataAndTotalElements({ connection, SQL, values }) {
     const [data] = await connection.query(SQL, values);
     const [totalCount] = await connection.query("SELECT FOUND_ROWS()");
@@ -10,7 +19,7 @@ const roomListRepository = {
     };
   },
 
-  async findRooms({ connection, offset, limit, isRunning, userId }) {
+  async findRooms({ connection, offset, limit, isRunning, userId, isMyRoom }) {
     let SQL = `SELECT SQL_CALC_FOUND_ROWS
         rooms.id,
         room_title,
@@ -21,6 +30,7 @@ const roomListRepository = {
         short_break_time,
         long_break_time,
         is_running,
+        ${userId ? this.isJoinedFieldSQL : ""}
         max_participants,
         users.nickname AS ownerName,
         users.profile_image_url AS ownerProfileImageUrl,
@@ -33,10 +43,13 @@ const roomListRepository = {
     const values = [parseInt(limit), parseInt(offset)];
 
     if (userId) {
-      SQL += "WHERE user_rooms.user_id = ? ";
       values.unshift(userId);
+      if (isMyRoom) {
+        SQL += "WHERE user_rooms.user_id = ? ";
+        values.unshift(userId);
+      }
     }
-
+    
     SQL += "GROUP BY rooms.id ";
 
     if (isRunning === "false") {
