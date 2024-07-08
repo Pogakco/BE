@@ -31,6 +31,12 @@ router.get(
   roomController.getRoomDetail
 );
 
+router.post(
+  "/:id/join",
+  [loginRequired, ...roomValidator.getRoomDetailValidator()],
+  roomController.joinRoom
+);
+
 router.get(
   "/:id/users",
   [...roomValidator.getRoomDetailValidator()],

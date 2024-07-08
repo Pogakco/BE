@@ -18,7 +18,7 @@ const roomController = {
       page,
       limit,
       isRunning,
-      userId
+      userId,
     });
 
     return res.status(StatusCodes.OK).json(rooms);
@@ -65,7 +65,7 @@ const roomController = {
       page,
       limit,
       isRunning,
-      isMyRoom: true
+      isMyRoom: true,
     });
 
     return res.status(StatusCodes.OK).json(myRooms);
@@ -99,6 +99,45 @@ const roomController = {
       return res.status(StatusCodes.OK).json(result);
     },
     { transaction: true }
+  ),
+
+  joinRoom: errorHandler(
+    async (req, res) => {
+      const { connection, userId } = req;
+      const roomId = parseInt(req.params.id);
+
+      const room = await roomService.getRoomById({ connection, roomId });
+      if (!room.id) {
+        return res
+          .status(StatusCodes.NOT_FOUND)
+          .json({ message: "존재하지 않는 방입니다." });
+      }
+
+      const alreadyJoined = await roomService.checkIfUserAlreadyJoined({
+        connection,
+        roomId,
+        userId,
+      });
+
+      if (alreadyJoined) {
+        return res
+          .status(StatusCodes.BAD_REQUEST)
+          .json({ message: "이미 참여하고 있는 방입니다." });
+      }
+
+      const isRoomFull = await roomService.checkIfRoomFull({
+        connection,
+        roomId,
+      });
+      if (isRoomFull) {
+        return res
+          .status(StatusCodes.BAD_REQUEST)
+          .json({ message: "정원이 모두 찼습니다." });
+      }
+
+      await roomService.joinRoom({ connection, roomId, userId });
+      return res.status(StatusCodes.NO_CONTENT).end();
+    },
   ),
 };
 

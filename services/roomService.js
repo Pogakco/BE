@@ -85,6 +85,30 @@ const roomService = {
 
     return { roomId };
   },
+
+  async checkIfUserAlreadyJoined({ connection, roomId, userId }) {
+    const participant = await userRoomRepository.findUserInRoon({
+      connection,
+      userId,
+      roomId,
+    });
+
+    return participant !== null;
+  },
+
+  async checkIfRoomFull({ connection, roomId }) {
+    const roomInfo = await roomRepository.findRoomById({ connection, roomId });
+    const maxParticipants = roomInfo.max_participants;
+    const currentParticipants = await userRoomRepository.findParticipants({
+      connection,
+      roomId,
+    });
+    return currentParticipants.length >= maxParticipants;
+  },
+
+  async joinRoom({ connection, userId, roomId }) {
+    await userRoomRepository.addUserToRoom({ connection, userId, roomId });
+  },
 };
 
 export default roomService;
