@@ -1,6 +1,7 @@
 import roomRepository from "../repositories/roomRepository.js";
 import timerRepository from "../repositories/timerRepository.js";
 import isEmptyArray from "../utils/isEmptyArray.js";
+import userRoomRepository from "../repositories/userRoomRepository.js";
 
 const timerService = {
   async startTimer({ connection, roomId, userIds }) {
@@ -10,7 +11,7 @@ const timerService = {
     });
 
     if (!isEmptyArray(userIds)) {
-      await roomRepository.createOrUpdateActiveParticipants({
+      await userRoomRepository.createOrUpdateActiveParticipants({
         connection,
         roomId,
         userIds,
@@ -26,7 +27,7 @@ const timerService = {
   },
 
   async finishTimer({ connection, roomId }) {
-    await roomRepository.updateAllParticipantsActiveStatus({
+    await userRoomRepository.updateAllParticipantsActiveStatus({
       connection,
       isActive: false,
       roomId,
@@ -37,7 +38,7 @@ const timerService = {
       roomId,
     });
 
-    const allParticipants = await roomRepository.findParticipants({
+    const allParticipants = await userRoomRepository.findParticipants({
       connection,
       roomId,
     });
@@ -61,12 +62,12 @@ const timerService = {
       currentCycles: increasedCurrentCycles,
     });
 
-    await roomRepository.increaseAllActiveParticipantsPomodoroCount({
+    await userRoomRepository.increaseAllActiveParticipantsPomodoroCount({
       connection,
       roomId,
     });
 
-    const allParticipants = await roomRepository.findParticipants({
+    const allParticipants = await userRoomRepository.findParticipants({
       connection,
       roomId,
     });
