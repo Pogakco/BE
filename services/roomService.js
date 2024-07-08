@@ -1,5 +1,6 @@
 import roomRepository from "../repositories/roomRepository.js";
 import timerRepository from "../repositories/timerRepository.js";
+import userRoomRepository from "../repositories/userRoomRepository.js";
 
 const roomService = {
   async getRoomById({ connection, roomId }) {
@@ -12,7 +13,7 @@ const roomService = {
   },
 
   async getUsersInRoom({ connection, roomId }) {
-    const participants = await roomRepository.findParticipants({
+    const participants = await userRoomRepository.findParticipants({
       connection,
       roomId,
     });
@@ -31,7 +32,7 @@ const roomService = {
   },
 
   async inactiveParticipant({ connection, roomId, userId }) {
-    await roomRepository.inactiveParticipant({
+    await userRoomRepository.inactiveParticipant({
       connection,
       roomId,
       userId,
@@ -76,7 +77,7 @@ const roomService = {
       timerId,
     });
 
-    await roomRepository.addUserToRoom({
+    await userRoomRepository.addUserToRoom({
       connection,
       userId: ownerId,
       roomId,
