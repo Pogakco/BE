@@ -1,7 +1,7 @@
 import camelcaseKeys from "camelcase-keys";
 import { SOCKET_TIMER_EVENTS } from "../../../constants.js";
 import timerService from "../../../services/timerService.js";
-import { calculateTimerTotalMs } from "./calculateMs.js";
+import { calculateTimerTotalMsWithDelay } from "./calculateMs.js";
 import getRoomIdFromNamespace from "./getRoomIdFromNamespace.js";
 
 const finishCyclesTimeoutGetter = ({ connection, socket, roomInfo }) => {
@@ -48,7 +48,7 @@ const finishCyclesTimeoutGetter = ({ connection, socket, roomInfo }) => {
           clearTimeout(finishCyclesTimeout);
           reject(error);
         }
-      }, calculateTimerTotalMs({ focusTime, shortBreakTime, totalCycles, longBreakTime }));
+      }, calculateTimerTotalMsWithDelay({ focusTime, shortBreakTime, totalCycles, longBreakTime }));
     });
 
   return { clearFinishCyclesTimeout, startFinishCyclesTimeout };
