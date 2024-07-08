@@ -100,6 +100,40 @@ const roomRepository = {
 
     await connection.query(SQL, [userId, roomId]);
   },
+
+  async createRoom({
+    connection,
+    roomTitle,
+    ownerId,
+    roomDescription,
+    maxParticipants,
+  }) {
+    const SQL = `
+      INSERT INTO rooms (room_title, owner_id, room_description, max_participants) 
+      VALUES(?, ?, ?, ?);
+    `;
+
+    const values = [roomTitle, ownerId, roomDescription, maxParticipants];
+    const [result] = await connection.query(SQL, values);
+    return result;
+  },
+
+  async updateRoomTimer({ connection, roomId, timerId }) {
+    const SQL = `
+      UPDATE rooms SET timer_id = ? WHERE id = ?;
+    `;
+    const values = [timerId, roomId];
+    await connection.query(SQL, values);
+  },
+
+  async addUserToRoom({ connection, userId, roomId }) {
+    const SQL = `
+      INSERT INTO user_rooms (user_id, room_id, is_active)
+      VALUES (?, ?, 0);
+    `;
+    const values = [userId, roomId];
+    await connection.query(SQL, values);
+  }
 };
 
 export default roomRepository;
