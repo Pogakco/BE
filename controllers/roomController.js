@@ -11,13 +11,14 @@ const roomController = {
       limit = DEFAULT_LIMIT,
       is_running: isRunning,
     } = req.query;
-    const { connection } = req;
+    const { connection, userId } = req;
 
     const rooms = await roomListService.getRooms({
       connection,
       page,
       limit,
       isRunning,
+      userId
     });
 
     return res.status(StatusCodes.OK).json(rooms);
@@ -64,6 +65,7 @@ const roomController = {
       page,
       limit,
       isRunning,
+      isMyRoom: true
     });
 
     return res.status(StatusCodes.OK).json(myRooms);
