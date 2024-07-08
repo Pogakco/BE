@@ -14,20 +14,17 @@ const userRoomRepository = {
     return data;
   },
 
-  async createOrUpdateActiveParticipants({ connection, roomId, userIds }) {
+  async updateParticipantsToActive({ connection, roomId, userIds }) {
     const SQL = `
-      INSERT INTO user_rooms
-        (user_id, room_id, is_active)
-      VALUES
-        ${userIds.map(() => "(?, ?, ?)").join(",")}
-      ON DUPLICATE KEY UPDATE
-        is_active = VALUES(is_active)
+      UPDATE user_rooms
+      SET 
+        is_active = true
+      WHERE 
+        room_id = ?
+        AND user_id IN (?)
     `;
 
-    await connection.query(
-      SQL,
-      userIds.flatMap((userId) => [userId, roomId, true])
-    );
+    await connection.query(SQL, [roomId, userIds]);
   },
 
   async updateAllParticipantsActiveStatus({ connection, roomId, isActive }) {
