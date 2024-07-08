@@ -8,6 +8,7 @@ export const SOCKET_DEFAULT_EVENTS = {
 };
 
 export const SOCKET_TIMER_EVENTS = {
+  SYNC_ALL_LINKED_USER_IDS: "sync-all-linked-user-ids",
   START_CYCLES: "start-cycles",
   SYNC_STARTED_AT: "sync-started-at",
   SYNC_IS_RUNNING: "sync-is-running",
