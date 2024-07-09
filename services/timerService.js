@@ -11,7 +11,7 @@ const timerService = {
     });
 
     if (!isEmptyArray(userIds)) {
-      await userRoomRepository.createOrUpdateActiveParticipants({
+      await userRoomRepository.updateParticipantsToActive({
         connection,
         roomId,
         userIds,
