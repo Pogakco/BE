@@ -74,6 +74,15 @@ const userRoomRepository = {
     const values = [userId, roomId];
     await connection.query(SQL, values);
   },
+
+  async findUserInRoom({ connection, userId, roomId }) {
+    const SQL = `
+      SELECT * FROM user_rooms
+      WHERE user_id =? AND room_id =?;
+    `;
+    const [data] = await connection.query(SQL, [userId, roomId]);
+    return data.length > 0 ? data[0] : null;
+  },
 };
 
 export default userRoomRepository;
