@@ -38,7 +38,7 @@ router.get("/users/me", [loginRequired], userController.myProfile);
 
 router.post(
   "/users/me/confirm-password",
-  [loginRequired],
+  [loginRequired, ...userValidator.getCheckPasswordValidator()],
   userController.confirmPassword
 );
 

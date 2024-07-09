@@ -68,6 +68,10 @@ const userValidator = {
   getCheckNicknameValidator() {
     return createValidator(createNicknameChain);
   },
+
+  getCheckPasswordValidator() {
+    return createValidator(createLoginPasswordChain);
+  },
 };
 
 export default userValidator;
