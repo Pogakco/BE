@@ -83,6 +83,14 @@ const userRoomRepository = {
     const [data] = await connection.query(SQL, [userId, roomId]);
     return data.length > 0 ? data[0] : null;
   },
+
+  async removeUserFromRoom({ connection, userId, roomId }) {
+    const SQL = `
+      DELETE FROM user_rooms
+      WHERE user_id =? AND room_id =?;
+    `;
+    await connection.query(SQL, [userId, roomId]);
+  },
 };
 
 export default userRoomRepository;
