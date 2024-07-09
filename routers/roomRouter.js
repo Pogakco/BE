@@ -37,6 +37,12 @@ router.post(
   roomController.joinRoom
 );
 
+router.delete(
+  "/:id/leave",
+  [loginRequired, ...roomValidator.getRoomDetailValidator()],
+  roomController.leaveRoom
+);
+
 router.get(
   "/:id/users",
   [...roomValidator.getRoomDetailValidator()],
