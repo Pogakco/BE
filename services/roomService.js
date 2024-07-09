@@ -86,8 +86,8 @@ const roomService = {
     return { roomId };
   },
 
-  async checkIfUserAlreadyJoined({ connection, roomId, userId }) {
-    const participant = await userRoomRepository.findUserInRoon({
+  async checkUserAlreadyJoined({ connection, roomId, userId }) {
+    const participant = await userRoomRepository.findUserInRoom({
       connection,
       userId,
       roomId,
@@ -96,7 +96,7 @@ const roomService = {
     return participant !== null;
   },
 
-  async checkIfRoomFull({ connection, roomId }) {
+  async checkRoomFull({ connection, roomId }) {
     const roomInfo = await roomRepository.findRoomById({ connection, roomId });
     const maxParticipants = roomInfo.max_participants;
     const currentParticipants = await userRoomRepository.findParticipants({

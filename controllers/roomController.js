@@ -113,7 +113,7 @@ const roomController = {
           .json({ message: "존재하지 않는 방입니다." });
       }
 
-      const alreadyJoined = await roomService.checkIfUserAlreadyJoined({
+      const alreadyJoined = await roomService.checkUserAlreadyJoined({
         connection,
         roomId,
         userId,
@@ -125,7 +125,7 @@ const roomController = {
           .json({ message: "이미 참여하고 있는 방입니다." });
       }
 
-      const isRoomFull = await roomService.checkIfRoomFull({
+      const isRoomFull = await roomService.checkRoomFull({
         connection,
         roomId,
       });

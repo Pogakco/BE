@@ -75,7 +75,7 @@ const userRoomRepository = {
     await connection.query(SQL, values);
   },
 
-  async findUserInRoon({ connection, userId, roomId }) {
+  async findUserInRoom({ connection, userId, roomId }) {
     const SQL = `
       SELECT * FROM user_rooms
       WHERE user_id =? AND room_id =?;
