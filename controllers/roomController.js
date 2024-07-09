@@ -158,7 +158,7 @@ const roomController = {
     if (!alreadyJoined) {
       return res
         .status(StatusCodes.BAD_REQUEST)
-        .json({ message: "참여하지 않고 있는 방입니다." });
+        .json({ message: "참여하지 않은 방입니다." });
     }
 
     const isOwner = await roomService.isRoomOwner({
