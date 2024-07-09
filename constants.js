@@ -27,4 +27,5 @@ export const DEFAULT_LIMIT = 9;
 
 export const AWS_S3_DIRECTORY = {
   DEFAULT: "default",
+  USER_PROFILE_IMAGE: "users/profile-image",
 };

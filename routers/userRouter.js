@@ -1,5 +1,6 @@
 import express from "express";
 import userController from "../controllers/userController.js";
+import multerUpload from "../middlewares/multerUpload.js";
 import loginRequired from "../validators/middlewares/loginRequired.js";
 import userValidator from "../validators/userValidator.js";
 
@@ -35,5 +36,15 @@ router.post(
 );
 
 router.get("/users/me", [loginRequired], userController.myProfile);
+
+router.post(
+  "/users/me",
+  [
+    loginRequired,
+    multerUpload.single("profileImage"),
+    ...userValidator.getUpdateMyProfileValidator(),
+  ],
+  userController.updateMyProfile
+);
 
 export default router;
