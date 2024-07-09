@@ -1,5 +1,17 @@
 import { body } from "express-validator";
 import createValidator from "./helpers/createValidator.js";
+import { imageFile } from "./helpers/customChains.js";
+
+const getPasswordRegex = () => {
+  // 알파벳, 숫자, 특수문자가 1개씩 포함되는 8-20자 내의 값
+  const alphabets = "A-Za-z";
+  const numbers = "\\d";
+  const specialChars = "@$!%*#?&";
+
+  return new RegExp(
+    `^(?=.*[${alphabets}])(?=.*[${numbers}])(?=.*[${specialChars}])[${alphabets}${numbers}${specialChars}]{8,20}$`
+  );
+};
 
 const createEmailChain = () => {
   return body("email")
@@ -28,24 +40,29 @@ const createNicknameChain = () => {
 };
 
 const createSignupPasswordChain = () => {
-  // 알파벳, 숫자, 특수문자가 1개씩 포함되는 8-20자 내의 값
-  const alphabets = "A-Za-z";
-  const numbers = "\\d";
-  const specialChars = "@$!%*#?&";
-  const regex = new RegExp(
-    `^(?=.*[${alphabets}])(?=.*[${numbers}])(?=.*[${specialChars}])[${alphabets}${numbers}${specialChars}]{8,20}$`
-  );
-
   return body("password")
     .notEmpty()
     .withMessage("비밀번호를 입력해 주세요.")
     .bail()
-    .matches(regex)
+    .matches(getPasswordRegex())
     .withMessage("비밀번호를 형식에 맞게 입력해 주세요.");
 };
 
 const createLoginPasswordChain = () => {
   return body("password").notEmpty().withMessage("비밀번호를 입력해 주세요.");
+};
+
+const createUpdateProfilePasswordChain = () => {
+  return body("password")
+    .optional()
+    .matches(getPasswordRegex())
+    .withMessage("비밀번호를 형식에 맞게 입력해 주세요.");
+};
+
+const createProfileImageChain = () => {
+  return imageFile("profileImage")
+    .optional()
+    .withMessage("허용된 파일 확장자가 아닙니다.");
 };
 
 const userValidator = {
@@ -67,6 +84,14 @@ const userValidator = {
 
   getCheckNicknameValidator() {
     return createValidator(createNicknameChain);
+  },
+
+  getUpdateMyProfileValidator() {
+    return createValidator(
+      createUpdateProfilePasswordChain,
+      createNicknameChain,
+      createProfileImageChain
+    );
   },
 };
 
