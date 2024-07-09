@@ -161,12 +161,7 @@ const roomController = {
         .json({ message: "참여하지 않은 방입니다." });
     }
 
-    const isOwner = await roomService.isRoomOwner({
-      connection,
-      userId,
-      roomId,
-    });
-    if (isOwner) {
+    if (room.ownerId === userId) {
       return res
         .status(StatusCodes.BAD_REQUEST)
         .json({ message: "방장은 방을 나갈 수 없습니다." });

@@ -106,11 +106,6 @@ const roomService = {
     return currentParticipants.length >= maxParticipants;
   },
 
-  async isRoomOwner({ connection, userId, roomId }) {
-    const room = await roomRepository.findRoomById({ connection, roomId });
-    return room.ownerId === userId;
-  },
-
   async joinRoom({ connection, userId, roomId }) {
     await userRoomRepository.addUserToRoom({ connection, userId, roomId });
   },
