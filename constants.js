@@ -25,7 +25,18 @@ export const SOCKET_TIMER_ERRORS = {
 export const DEFAULT_PAGE = 1;
 export const DEFAULT_LIMIT = 9;
 
-export const AWS_S3_DIRECTORY = {
+/* AWS S3 DIRECTORY */
+const PRODUCTION_AWS_S3_DIRECTORY = {
   DEFAULT: "default",
   USER_PROFILE_IMAGE: "users/profile-image",
 };
+const DEVELOPMENT_AWS_S3_DIRECTORY = Object.fromEntries(
+  Object.entries(PRODUCTION_AWS_S3_DIRECTORY).map(([key, value]) => [
+    key,
+    `dev/${value}`,
+  ])
+);
+export const AWS_S3_DIRECTORY = IS_DEV_MODE
+  ? DEVELOPMENT_AWS_S3_DIRECTORY
+  : PRODUCTION_AWS_S3_DIRECTORY;
+/* ---------------- */
