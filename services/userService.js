@@ -1,7 +1,9 @@
 import jwt from "jsonwebtoken";
 import convertHashedPassword from "../helpers/convertHashedPassword.js";
+import deleteFileFromS3 from "../helpers/deleteFileFromS3.js";
 import generateSalt from "../helpers/generateSalt.js";
 import userRepository from "../repositories/userRepository.js";
+import getPathnameFromUrl from "../utils/getPathnameFromUrl.js";
 
 const userService = {
   async getUserProfile({ connection, userId }) {
@@ -27,6 +29,38 @@ const userService = {
     });
 
     return data;
+  },
+
+  async updateUserProfile({
+    connection,
+    userId,
+    password,
+    nickname,
+    profileImageUrl,
+  }) {
+    // 업데이트가 완료 되면 이전 프로필 이미지를 S3에서 삭제하기 위해 변수에 저장
+    const { profile_image_url: previousProfileImageUrl } =
+      await userRepository.findUserById({ connection, userId });
+
+    const salt = password ? generateSalt() : null;
+    const hashedPassword = password
+      ? convertHashedPassword(password, salt)
+      : null;
+
+    await userRepository.updateUser({
+      connection,
+      userId,
+      hashedPassword,
+      salt,
+      nickname,
+      profileImageUrl,
+    });
+
+    if (previousProfileImageUrl) {
+      await deleteFileFromS3({
+        pathname: getPathnameFromUrl(previousProfileImageUrl),
+      });
+    }
   },
 
   async verifyLoginStatus({ accessToken }) {

@@ -31,6 +31,32 @@ const userRepository = {
 
     await connection.query(SQL, [email, nickname, hashedPassword, salt]);
   },
+
+  async updateUser({
+    connection,
+    userId,
+    hashedPassword,
+    salt,
+    nickname,
+    profileImageUrl,
+  }) {
+    const SQL = `
+      UPDATE users
+      SET
+        ${hashedPassword ? "password = ?," : ""}
+        ${salt ? "salt = ?," : ""}
+        profile_image_url = ${profileImageUrl ? "?" : "NULL"},
+        nickname = ?
+      WHERE id = ?
+    `;
+
+    await connection.query(
+      SQL,
+      [hashedPassword, salt, profileImageUrl, nickname, userId].filter(
+        (field) => !!field
+      )
+    );
+  },
 };
 
 export default userRepository;
