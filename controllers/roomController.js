@@ -176,7 +176,7 @@ const roomController = {
     const roomId = parseInt(req.params.id);
 
     const room = await roomService.getRoomById({ connection, roomId });
-    if (!room.id) {
+    if (!room) {
       return res
         .status(StatusCodes.NOT_FOUND)
         .json({ message: "존재하지 않는 방입니다." });
