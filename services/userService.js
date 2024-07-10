@@ -85,6 +85,16 @@ const userService = {
 
     return accessToken;
   },
+
+  async validatePassword({ connection, userId, password }) {
+    const userData = await userRepository.findUserById({ connection, userId });
+    if (!userData) {
+      return false;
+    }
+
+    const hashedPassword = convertHashedPassword(password, userData.salt);
+    return hashedPassword === userData.password;
+  },
 };
 
 export default userService;
