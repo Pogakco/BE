@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import { ACCESS_TOKEN_EXPIRES_IN, ACCESS_TOKEN_ISSUER } from "../constants.js";
 import convertHashedPassword from "../helpers/convertHashedPassword.js";
 import deleteFileFromS3 from "../helpers/deleteFileFromS3.js";
 import generateSalt from "../helpers/generateSalt.js";
@@ -113,8 +114,8 @@ const userService = {
 
     const JWT_PRIVATE_KEY = process.env.JWT_PRIVATE_KEY;
     const accessToken = jwt.sign({ id: user.id }, JWT_PRIVATE_KEY, {
-      expiresIn: "30m",
-      issuer: "pogakco",
+      expiresIn: ACCESS_TOKEN_EXPIRES_IN,
+      issuer: ACCESS_TOKEN_ISSUER,
     });
 
     return accessToken;

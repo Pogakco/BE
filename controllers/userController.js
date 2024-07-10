@@ -1,5 +1,9 @@
 import { StatusCodes } from "http-status-codes";
-import { ACCESS_TOKEN_KEY, AWS_S3_DIRECTORY } from "../constants.js";
+import {
+  ACCESS_TOKEN_COOKIE_OPTIONS,
+  ACCESS_TOKEN_KEY,
+  AWS_S3_DIRECTORY,
+} from "../constants.js";
 import deleteFileFromS3 from "../helpers/deleteFileFromS3.js";
 import uploadFileToS3 from "../helpers/uploadFileToS3.js";
 import userService from "../services/userService.js";
@@ -59,11 +63,7 @@ const userController = {
       connection,
       email,
     });
-    res.cookie(ACCESS_TOKEN_KEY, accessToken, {
-      httpOnly: true,
-      // secure: !IS_DEV_MODE, TODO: 운영 환경 HTTPS 적용 후 주석 해제
-      sameSite: "lax",
-    });
+    res.cookie(ACCESS_TOKEN_KEY, accessToken, ACCESS_TOKEN_COOKIE_OPTIONS);
 
     return res.status(StatusCodes.NO_CONTENT).end();
   }),

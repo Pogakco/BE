@@ -1,5 +1,3 @@
-export const ACCESS_TOKEN_KEY = "access_token";
-
 export const IS_DEV_MODE = process.env.NODE_ENV === "development";
 
 export const SOCKET_DEFAULT_EVENTS = {
@@ -49,3 +47,13 @@ export const SECOND_MS = 1000;
 export const MINUTE_MS = 60 * SECOND_MS;
 export const HOUR_MS = 60 * MINUTE_MS;
 export const DAY_MS = 24 * HOUR_MS;
+
+export const ACCESS_TOKEN_KEY = "access_token";
+export const ACCESS_TOKEN_EXPIRES_IN = "30m";
+export const ACCESS_TOKEN_ISSUER = "pogakco";
+export const ACCESS_TOKEN_COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: !IS_DEV_MODE,
+  sameSite: "lax",
+  maxAge: ACCESS_TOKEN_EXPIRES_IN,
+};
