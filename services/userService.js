@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import jwt from "jsonwebtoken";
 import { ACCESS_TOKEN_EXPIRES_IN, ACCESS_TOKEN_ISSUER } from "../constants.js";
 import convertHashedPassword from "../helpers/convertHashedPassword.js";
@@ -129,6 +130,26 @@ const userService = {
 
     const hashedPassword = convertHashedPassword(password, userData.salt);
     return hashedPassword === userData.password;
+  },
+
+  async createRefreshToken({ connection, userId }) {
+    const refreshToken = randomUUID();
+
+    await userRepository.createRefreshToken({
+      connection,
+      userId,
+      refreshToken,
+    });
+
+    return refreshToken;
+  },
+
+  async deleteRefreshToken({ connection, userId, refreshToken }) {
+    await userRepository.deleteRefreshToken({
+      connection,
+      userId,
+      refreshToken,
+    });
   },
 };
 

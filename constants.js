@@ -57,3 +57,5 @@ export const ACCESS_TOKEN_COOKIE_OPTIONS = {
   sameSite: "lax",
   maxAge: ACCESS_TOKEN_EXPIRES_IN,
 };
+
+export const REFRESH_TOKEN_MAX_AGE = 14 * DAY_MS;
