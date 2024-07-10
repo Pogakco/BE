@@ -28,7 +28,7 @@ const roomRepository = {
 
     const [data] = await connection.query(SQL, [roomId]);
 
-    return isEmptyArray(data) ? null : data[0];
+    return !isEmptyArray(data) && data[0].id ? data[0] : null;
   },
 
   async createRoom({

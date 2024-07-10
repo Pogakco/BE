@@ -91,6 +91,10 @@ const userValidator = {
       createProfileImageChain
     );
   },
+
+  getCheckPasswordValidator() {
+    return createValidator(createLoginPasswordChain);
+  },
 };
 
 export default userValidator;
