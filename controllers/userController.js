@@ -108,6 +108,25 @@ const userController = {
 
     return res.status(StatusCodes.OK).json(profile);
   }),
+
+  confirmPassword: errorHandler(async (req, res) => {
+    const { connection, userId } = req;
+    const { password } = req.body;
+
+    const isValidPassword = await userService.validatePassword({
+      connection,
+      userId,
+      password,
+    });
+
+    if (!isValidPassword) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: "비밀번호가 틀렸습니다." });
+    }
+
+    return res.status(StatusCodes.NO_CONTENT).end();
+  }),
 };
 
 export default userController;

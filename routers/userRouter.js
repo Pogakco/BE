@@ -36,4 +36,10 @@ router.post(
 
 router.get("/users/me", [loginRequired], userController.myProfile);
 
+router.post(
+  "/users/me/confirm-password",
+  [loginRequired, ...userValidator.getCheckPasswordValidator()],
+  userController.confirmPassword
+);
+
 export default router;
