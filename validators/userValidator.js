@@ -1,6 +1,6 @@
 import { body } from "express-validator";
 import createValidator from "./helpers/createValidator.js";
-import { imageFile } from "./helpers/customChains.js";
+import imageFileChain from "./helpers/imageFileChain.js";
 
 const getPasswordRegex = () => {
   // 알파벳, 숫자, 특수문자가 1개씩 포함되는 8-20자 내의 값
@@ -60,9 +60,7 @@ const createUpdateProfilePasswordChain = () => {
 };
 
 const createProfileImageChain = () => {
-  return imageFile("profileImage")
-    .optional()
-    .withMessage("허용된 파일 확장자가 아닙니다.");
+  return imageFileChain("profileImage", { optional: true });
 };
 
 const userValidator = {
