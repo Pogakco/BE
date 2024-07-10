@@ -44,3 +44,8 @@ export const AWS_S3_DIRECTORY = IS_DEV_MODE
   ? DEVELOPMENT_AWS_S3_DIRECTORY
   : PRODUCTION_AWS_S3_DIRECTORY;
 /* ---------------- */
+
+export const SECOND_MS = 1000;
+export const MINUTE_MS = 60 * SECOND_MS;
+export const HOUR_MS = 60 * MINUTE_MS;
+export const DAY_MS = 24 * HOUR_MS;
