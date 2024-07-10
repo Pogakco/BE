@@ -13,3 +13,12 @@ export const trimEndSlash = (str) => {
 
   return str;
 };
+
+export const trimSlash = (str) => {
+  let result = str;
+
+  result = trimStartSlash(result);
+  result = trimEndSlash(result);
+
+  return result;
+};

@@ -3,13 +3,13 @@ import { randomUUID } from "crypto";
 import { extname } from "path";
 import { s3Client } from "../config/aws-config.js";
 import { AWS_S3_DIRECTORY } from "../constants.js";
-import { trimEndSlash, trimStartSlash } from "../utils/trimSlash.js";
+import { trimSlash, trimStartSlash } from "../utils/trimSlash.js";
 
 const uploadFileToS3 = async ({ file, directory }) => {
   try {
-    // 저장 경로가 'foo//file.jpg'와 같이 되는 것을 방지하고, directory가 없거나 공백일 경우 디폴트 경로로 처리
+    // 저장 경로가 '/foo//file.jpg'와 같이 되는 것을 방지하고, directory가 없거나 공백일 경우 디폴트 경로로 처리
     directory = !!directory
-      ? trimEndSlash(directory)
+      ? trimSlash(directory)
       : AWS_S3_DIRECTORY.DEFAULT;
 
     const extensionName = extname(file.originalname); // 확장자명('.' 포함)
