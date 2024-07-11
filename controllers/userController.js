@@ -13,9 +13,9 @@ import errorHandler from "./helpers/errorHandler.js";
 
 const userController = {
   auth: errorHandler(async (req, res) => {
-    const accessToken = req.cookies[ACCESS_TOKEN_KEY];
+    const { userId } = req;
 
-    const isLogin = await userService.verifyLoginStatus({ accessToken });
+    const isLogin = !!userId;
 
     return res.status(StatusCodes.OK).json({ isLogin });
   }),

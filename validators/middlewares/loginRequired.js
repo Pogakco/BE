@@ -10,10 +10,11 @@ import userService from "../../services/userService.js";
 
 const defaultOptions = {
   allowAnonymous: false,
+  skipAuthError: false,
 };
 
 const loginRequired = (options = defaultOptions) => {
-  const { allowAnonymous } = options;
+  const { allowAnonymous, skipAuthError } = options;
 
   return async (req, res, next) => {
     const accessToken = req.cookies[ACCESS_TOKEN_KEY];
@@ -52,6 +53,10 @@ const loginRequired = (options = defaultOptions) => {
       // Controller에 넘겨질 req.cookies도 제거
       delete req.cookies[ACCESS_TOKEN_KEY];
       delete req.cookies[REFRESH_TOKEN_KEY];
+
+      if (skipAuthError) {
+        return next();
+      }
 
       return res
         .status(StatusCodes.UNAUTHORIZED)

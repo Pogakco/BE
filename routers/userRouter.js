@@ -8,7 +8,11 @@ import userValidator from "../validators/userValidator.js";
 const router = express.Router();
 router.use(express.json());
 
-router.post("/auth", userController.auth);
+router.post(
+  "/auth",
+  [loginRequired({ skipAuthError: true })],
+  userController.auth
+);
 
 router.post(
   "/signup",

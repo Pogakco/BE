@@ -138,20 +138,6 @@ const userService = {
     }
   },
 
-  async verifyLoginStatus({ accessToken }) {
-    if (!accessToken) {
-      return false;
-    }
-
-    try {
-      const JWT_PRIVATE_KEY = process.env.JWT_PRIVATE_KEY;
-      jwt.verify(accessToken, JWT_PRIVATE_KEY);
-      return true;
-    } catch (error) {
-      return false;
-    }
-  },
-
   async signup({ connection, email, nickname, password }) {
     const salt = generateSalt();
     const hashedPassword = convertHashedPassword(password, salt);
