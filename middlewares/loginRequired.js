@@ -5,8 +5,8 @@ import {
   AUTHENTICATE_ERROR_TYPE,
   REFRESH_TOKEN_COOKIE_OPTIONS,
   REFRESH_TOKEN_KEY,
-} from "../../constants.js";
-import userService from "../../services/userService.js";
+} from "../constants.js";
+import userService from "../services/userService.js";
 
 const defaultOptions = {
   allowAnonymous: false,

@@ -1,8 +1,8 @@
 import express from "express";
 import multerErrorHandler from "../controllers/helpers/multerErrorHandler.js";
 import userController from "../controllers/userController.js";
+import loginRequired from "../middlewares/loginRequired.js";
 import multerUpload from "../middlewares/multerUpload.js";
-import loginRequired from "../validators/middlewares/loginRequired.js";
 import userValidator from "../validators/userValidator.js";
 
 const router = express.Router();

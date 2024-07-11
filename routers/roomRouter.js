@@ -1,6 +1,6 @@
 import express from "express";
 import roomController from "../controllers/roomController.js";
-import loginRequired from "../validators/middlewares/loginRequired.js";
+import loginRequired from "../middlewares/loginRequired.js";
 import roomValidator from "../validators/roomValidator.js";
 
 const router = express.Router();
