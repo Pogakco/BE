@@ -113,6 +113,10 @@ const roomService = {
   async leaveRoom({ connection, userId, roomId }) {
     await userRoomRepository.removeUserFromRoom({ connection, userId, roomId });
   },
+
+  async deleteRoom({ connection, roomId }) {
+    await roomRepository.deleteRoom({ connection, roomId });
+  },
 };
 
 export default roomService;

@@ -55,6 +55,13 @@ const roomRepository = {
     const values = [timerId, roomId];
     await connection.query(SQL, values);
   },
+
+  async deleteRoom({ connection, roomId }) {
+    const SQL = `
+      DELETE FROM rooms WHERE id = ?;
+    `;
+    await connection.query(SQL, [roomId]);
+  },
 };
 
 export default roomRepository;
