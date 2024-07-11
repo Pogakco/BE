@@ -1,44 +1,80 @@
 import { StatusCodes } from "http-status-codes";
-import jwt from "jsonwebtoken";
-import { ACCESS_TOKEN_KEY } from "../../constants.js";
+import {
+  ACCESS_TOKEN_COOKIE_OPTIONS,
+  ACCESS_TOKEN_KEY,
+  AUTHENTICATE_ERROR_TYPE,
+  REFRESH_TOKEN_COOKIE_OPTIONS,
+  REFRESH_TOKEN_KEY,
+} from "../../constants.js";
+import userService from "../../services/userService.js";
 
-const loginRequired = (req, res, next) => {
-  const accessToken = req.cookies[ACCESS_TOKEN_KEY];
+const defaultOptions = {
+  allowAnonymous: false,
+};
 
-  if (!accessToken) {
-    return res
-      .status(StatusCodes.UNAUTHORIZED)
-      .json({ message: "토큰이 존재하지 않습니다." });
-  }
+const loginRequired = (options = defaultOptions) => {
+  const { allowAnonymous } = options;
 
-  try {
-    const JWT_PRIVATE_KEY = process.env.JWT_PRIVATE_KEY;
-    const decodedJwt = jwt.verify(accessToken, JWT_PRIVATE_KEY);
-    req.userId = decodedJwt.id;
-    next();
-  } catch (error) {
-    // JWT 에러라면 쿠키 제거
-    if (error instanceof jwt.JsonWebTokenError) {
+  return async (req, res, next) => {
+    const accessToken = req.cookies[ACCESS_TOKEN_KEY];
+    const refreshToken = req.cookies[REFRESH_TOKEN_KEY];
+
+    let authenticateResult = null;
+    try {
+      authenticateResult = await userService.authenticate({
+        accessToken,
+        refreshToken,
+      });
+    } catch (error) {
+      return next(error);
+    }
+
+    const {
+      authErrorType,
+      isAuthError,
+      authErrorMessage,
+      newAccessToken,
+      newRefreshToken,
+      userId,
+    } = authenticateResult;
+
+    if (
+      allowAnonymous &&
+      authErrorType === AUTHENTICATE_ERROR_TYPE.TOKEN_NOT_FOUND
+    ) {
+      return next();
+    }
+
+    if (isAuthError) {
       res.clearCookie(ACCESS_TOKEN_KEY);
+      res.clearCookie(REFRESH_TOKEN_KEY);
+
+      // Controller에 넘겨질 req.cookies도 제거
+      delete req.cookies[ACCESS_TOKEN_KEY];
+      delete req.cookies[REFRESH_TOKEN_KEY];
+
+      return res
+        .status(StatusCodes.UNAUTHORIZED)
+        .json({ message: authErrorMessage });
     }
 
-    // 에러 케이스에 맞춰서 메세지 return
-    if (error instanceof jwt.TokenExpiredError) {
-      return res
-        .status(StatusCodes.UNAUTHORIZED)
-        .json({ message: "토큰이 만기되었습니다." });
+    if (newAccessToken && newRefreshToken) {
+      res.cookie(ACCESS_TOKEN_KEY, newAccessToken, ACCESS_TOKEN_COOKIE_OPTIONS);
+      res.cookie(
+        REFRESH_TOKEN_KEY,
+        newRefreshToken,
+        REFRESH_TOKEN_COOKIE_OPTIONS
+      );
+
+      // Controller에서 사용 될 req.cookies도 업데이트
+      req.cookies[ACCESS_TOKEN_KEY] = newAccessToken;
+      req.cookies[REFRESH_TOKEN_KEY] = newRefreshToken;
     }
-    if (error instanceof jwt.JsonWebTokenError) {
-      return res
-        .status(StatusCodes.UNAUTHORIZED)
-        .json({ message: "유효하지 않은 토큰입니다." });
-    }
-    if (error instanceof jwt.NotBeforeError) {
-      return res
-        .status(StatusCodes.UNAUTHORIZED)
-        .json({ message: "토큰이 비활성화 상태입니다." });
-    }
-  }
+
+    req.userId = userId;
+
+    return next();
+  };
 };
 
 export default loginRequired;
