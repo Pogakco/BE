@@ -7,7 +7,8 @@ const userRoomRepository = {
         users.profile_image_url
       FROM user_rooms
       JOIN users ON user_rooms.user_id = users.id
-      WHERE room_id = ?;
+      WHERE room_id = ?
+      ORDER BY is_active DESC, pomodoro_count DESC;
     `;
     const [data] = await connection.query(SQL, [roomId]);
 
