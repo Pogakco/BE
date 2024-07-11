@@ -60,6 +60,18 @@ const userRepository = {
     );
   },
 
+  async findRefreshTokenByValue({ connection, refreshToken }) {
+    const SQL = `
+      SELECT *
+      FROM refresh_tokens
+      WHERE value = ?
+    `;
+
+    const [data] = await connection.query(SQL, [refreshToken]);
+
+    return isEmptyArray(data) ? null : data[0];
+  },
+
   async createRefreshToken({ connection, userId, refreshToken }) {
     const SQL = `
       INSERT INTO refresh_tokens (user_id, expire_date, value)

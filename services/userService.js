@@ -1,6 +1,12 @@
 import { randomUUID } from "crypto";
+import dayjs from "dayjs";
 import jwt from "jsonwebtoken";
-import { ACCESS_TOKEN_ISSUER, ACCESS_TOKEN_EXPIRES_IN } from "../constants.js";
+import {
+  ACCESS_TOKEN_EXPIRES_IN,
+  ACCESS_TOKEN_ISSUER,
+  AUTHENTICATE_ERROR_TYPE,
+} from "../constants.js";
+import pool from "../db/pool.js";
 import convertHashedPassword from "../helpers/convertHashedPassword.js";
 import deleteFileFromS3 from "../helpers/deleteFileFromS3.js";
 import generateSalt from "../helpers/generateSalt.js";
@@ -62,6 +68,73 @@ const userService = {
       await deleteFileFromS3({
         pathname: getPathnameFromUrl(previousProfileImageUrl),
       });
+    }
+  },
+
+  async authenticate({ accessToken, refreshToken }) {
+    const connection = await pool.getConnection();
+
+    const result = {
+      isAuthError: false,
+      authErrorType: null,
+      authErrorMessage: null,
+      newAccessToken: null,
+      newRefreshToken: null,
+      userId: null,
+    };
+
+    if (!accessToken || !refreshToken) {
+      result.authErrorType = AUTHENTICATE_ERROR_TYPE.TOKEN_NOT_FOUND;
+      result.isAuthError = true;
+      result.authErrorMessage = "토큰이 존재하지 않습니다.";
+      return result;
+    }
+
+    const refreshTokenInfo = await this.getRefreshTokenInfoByValue({
+      connection,
+      refreshToken,
+    });
+    if (!refreshTokenInfo) {
+      result.authErrorType = AUTHENTICATE_ERROR_TYPE.INVALID_REFRESH_TOKEN;
+      result.isAuthError = true;
+      result.authErrorMessage = "유효하지 않은 리프레시 토큰 입니다.";
+      return result;
+    }
+
+    const { user_id: userId, expire_date: refreshTokenExpireDate } =
+      refreshTokenInfo;
+
+    result.userId = userId;
+
+    try {
+      const JWT_PRIVATE_KEY = process.env.JWT_PRIVATE_KEY;
+      jwt.verify(accessToken, JWT_PRIVATE_KEY);
+
+      return result;
+    } catch (error) {
+      const isTokenRefreshable =
+        error instanceof jwt.TokenExpiredError &&
+        dayjs().isBefore(dayjs(refreshTokenExpireDate));
+
+      if (isTokenRefreshable) {
+        result.newAccessToken = this.issueAccessToken({
+          userId,
+        });
+
+        await this.deleteRefreshToken({ userId, refreshToken });
+        result.newRefreshToken = await this.createRefreshToken({
+          connection,
+          userId,
+        });
+
+        return result;
+      }
+
+      result.authErrorType = AUTHENTICATE_ERROR_TYPE.INVALID_ACCESS_TOKEN;
+      result.isAuthError = true;
+      result.authErrorMessage = "유효하지 않은 토큰입니다.";
+
+      return result;
     }
   },
 
@@ -128,6 +201,24 @@ const userService = {
 
     const hashedPassword = convertHashedPassword(password, userData.salt);
     return hashedPassword === userData.password;
+  },
+
+  async getRefreshTokenInfoByValue({ refreshToken }) {
+    const connection = await pool.getConnection();
+    let result = null;
+
+    try {
+      result = await userRepository.findRefreshTokenByValue({
+        connection,
+        refreshToken,
+      });
+    } catch (error) {
+      throw error;
+    } finally {
+      connection.release();
+    }
+
+    return result;
   },
 
   async createRefreshToken({ connection, userId }) {
