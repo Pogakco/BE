@@ -72,8 +72,6 @@ const userService = {
   },
 
   async authenticate({ accessToken, refreshToken }) {
-    const connection = await pool.getConnection();
-
     const result = {
       isAuthError: false,
       authErrorType: null,
@@ -91,7 +89,6 @@ const userService = {
     }
 
     const refreshTokenInfo = await this.getRefreshTokenInfoByValue({
-      connection,
       refreshToken,
     });
     if (!refreshTokenInfo) {
@@ -116,15 +113,14 @@ const userService = {
         error instanceof jwt.TokenExpiredError &&
         dayjs().isBefore(dayjs(refreshTokenExpireDate));
 
-      if (isTokenRefreshable) {
+      if (isTokenRefreshable) { 
         result.newAccessToken = this.issueAccessToken({
           userId,
         });
 
-        await this.deleteRefreshToken({ userId, refreshToken });
-        result.newRefreshToken = await this.createRefreshToken({
-          connection,
+        result.newRefreshToken = await this.reissueRefreshToken({
           userId,
+          refreshToken,
         });
 
         return result;
@@ -151,22 +147,31 @@ const userService = {
     });
   },
 
-  async validateUser({ connection, email, password }) {
-    const dbUserData = await userRepository.findUserByEmail({
-      connection,
-      email,
-    });
+  async validateUser({ email, password }) {
+    const connection = await pool.getConnection();
 
-    if (!dbUserData) {
-      return null;
-    }
-    if (
-      dbUserData.password !== convertHashedPassword(password, dbUserData.salt)
-    ) {
-      return null;
-    }
+    try {
+      const dbUserData = await userRepository.findUserByEmail({
+        connection,
+        email,
+      });
 
-    return dbUserData;
+      if (!dbUserData) {
+        return null;
+      }
+
+      if (
+        dbUserData.password !== convertHashedPassword(password, dbUserData.salt)
+      ) {
+        return null;
+      }
+
+      return dbUserData;
+    } catch (error) {
+      throw error;
+    } finally {
+      connection.release();
+    }
   },
 
   issueAccessToken({ userId }) {
@@ -207,14 +212,21 @@ const userService = {
     return result;
   },
 
-  async createRefreshToken({ connection, userId }) {
+  async createRefreshToken({ userId }) {
+    const connection = await pool.getConnection();
     const refreshToken = randomUUID();
 
-    await userRepository.createRefreshToken({
-      connection,
-      userId,
-      refreshToken,
-    });
+    try {
+      await userRepository.createRefreshToken({
+        connection,
+        userId,
+        refreshToken,
+      });
+    } catch (error) {
+      throw error;
+    } finally {
+      connection.release();
+    }
 
     return refreshToken;
   },
@@ -229,6 +241,37 @@ const userService = {
         refreshToken,
       });
     } catch (error) {
+      throw error;
+    } finally {
+      connection.release();
+    }
+  },
+
+  async reissueRefreshToken({ userId, refreshToken }) {
+    const connection = await pool.getConnection();
+
+    try {
+      await connection.beginTransaction();
+
+      await userRepository.deleteRefreshToken({
+        connection,
+        userId,
+        refreshToken,
+      });
+
+      const newRefreshToken = randomUUID();
+      await userRepository.createRefreshToken({
+        connection,
+        userId,
+        refreshToken: newRefreshToken,
+      });
+
+      await connection.commit();
+
+      return newRefreshToken;
+    } catch (error) {
+      await connection.rollback();
+
       throw error;
     } finally {
       connection.release();

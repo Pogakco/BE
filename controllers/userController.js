@@ -47,11 +47,9 @@ const userController = {
   }),
 
   login: errorHandler(async (req, res) => {
-    const { connection } = req;
     const { email, password } = req.body;
 
     const validUser = await userService.validateUser({
-      connection,
       email,
       password,
     });
@@ -68,7 +66,6 @@ const userController = {
     res.cookie(ACCESS_TOKEN_KEY, accessToken, ACCESS_TOKEN_COOKIE_OPTIONS);
 
     const refreshToken = await userService.createRefreshToken({
-      connection,
       userId,
     });
     res.cookie(REFRESH_TOKEN_KEY, refreshToken, REFRESH_TOKEN_COOKIE_OPTIONS);
