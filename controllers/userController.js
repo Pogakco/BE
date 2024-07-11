@@ -3,6 +3,8 @@ import {
   ACCESS_TOKEN_COOKIE_OPTIONS,
   ACCESS_TOKEN_KEY,
   AWS_S3_DIRECTORY,
+  REFRESH_TOKEN_COOKIE_OPTIONS,
+  REFRESH_TOKEN_KEY,
 } from "../constants.js";
 import deleteFileFromS3 from "../helpers/deleteFileFromS3.js";
 import uploadFileToS3 from "../helpers/uploadFileToS3.js";
@@ -48,28 +50,41 @@ const userController = {
     const { connection } = req;
     const { email, password } = req.body;
 
-    const isValidUser = await userService.validateUser({
+    const validUser = await userService.validateUser({
       connection,
       email,
       password,
     });
-    if (!isValidUser) {
+    if (!validUser) {
       return res
         .status(StatusCodes.UNAUTHORIZED)
         .json({ message: "회원 정보가 잘못되었습니다." });
     }
+    const { id: userId } = validUser;
 
-    const accessToken = await userService.issueAccessToken({
-      connection,
-      email,
+    const accessToken = userService.issueAccessToken({
+      userId,
     });
     res.cookie(ACCESS_TOKEN_KEY, accessToken, ACCESS_TOKEN_COOKIE_OPTIONS);
+
+    const refreshToken = await userService.createRefreshToken({
+      connection,
+      userId,
+    });
+    res.cookie(REFRESH_TOKEN_KEY, refreshToken, REFRESH_TOKEN_COOKIE_OPTIONS);
 
     return res.status(StatusCodes.NO_CONTENT).end();
   }),
 
   logout: errorHandler(async (req, res) => {
+    const { userId } = req;
+    const refreshToken = req.cookies[REFRESH_TOKEN_KEY];
+
+    await userService.deleteRefreshToken({ userId, refreshToken });
+
     res.clearCookie(ACCESS_TOKEN_KEY);
+    res.clearCookie(REFRESH_TOKEN_KEY);
+
     return res.status(StatusCodes.NO_CONTENT).end();
   }),
 

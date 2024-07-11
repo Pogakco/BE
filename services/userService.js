@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 import jwt from "jsonwebtoken";
-import { ACCESS_TOKEN_EXPIRES_IN, ACCESS_TOKEN_ISSUER } from "../constants.js";
+import { ACCESS_TOKEN_ISSUER, ACCESS_TOKEN_EXPIRES_IN } from "../constants.js";
 import convertHashedPassword from "../helpers/convertHashedPassword.js";
 import deleteFileFromS3 from "../helpers/deleteFileFromS3.js";
 import generateSalt from "../helpers/generateSalt.js";
@@ -99,22 +99,20 @@ const userService = {
     });
 
     if (!dbUserData) {
-      return false;
+      return null;
     }
     if (
       dbUserData.password !== convertHashedPassword(password, dbUserData.salt)
     ) {
-      return false;
+      return null;
     }
 
-    return true;
+    return dbUserData;
   },
 
-  async issueAccessToken({ connection, email }) {
-    const user = await userRepository.findUserByEmail({ connection, email });
-
+  issueAccessToken({ userId }) {
     const JWT_PRIVATE_KEY = process.env.JWT_PRIVATE_KEY;
-    const accessToken = jwt.sign({ id: user.id }, JWT_PRIVATE_KEY, {
+    const accessToken = jwt.sign({ id: userId }, JWT_PRIVATE_KEY, {
       expiresIn: ACCESS_TOKEN_EXPIRES_IN,
       issuer: ACCESS_TOKEN_ISSUER,
     });
@@ -144,12 +142,20 @@ const userService = {
     return refreshToken;
   },
 
-  async deleteRefreshToken({ connection, userId, refreshToken }) {
-    await userRepository.deleteRefreshToken({
-      connection,
-      userId,
-      refreshToken,
-    });
+  async deleteRefreshToken({ userId, refreshToken }) {
+    const connection = await pool.getConnection();
+
+    try {
+      await userRepository.deleteRefreshToken({
+        connection,
+        userId,
+        refreshToken,
+      });
+    } catch (error) {
+      throw error;
+    } finally {
+      connection.release();
+    }
   },
 };
 

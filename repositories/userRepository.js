@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import { REFRESH_TOKEN_MAX_AGE } from "../constants.js";
+import { REFRESH_TOKEN_MAX_AGE, TIMESTAMP_FORMAT } from "../constants.js";
 import isEmptyArray from "../utils/isEmptyArray.js";
 
 const userRepository = {
@@ -68,7 +68,7 @@ const userRepository = {
 
     const expireDate = dayjs()
       .add(REFRESH_TOKEN_MAX_AGE, "millisecond")
-      .format("YYYY-MM-DD HH:mm:ss");
+      .format(TIMESTAMP_FORMAT);
 
     await connection.query(SQL, [userId, expireDate, refreshToken]);
   },
