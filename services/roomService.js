@@ -1,3 +1,4 @@
+import pool from "../db/pool.js";
 import roomRepository from "../repositories/roomRepository.js";
 import timerRepository from "../repositories/timerRepository.js";
 import userRoomRepository from "../repositories/userRoomRepository.js";
@@ -114,8 +115,16 @@ const roomService = {
     await userRoomRepository.removeUserFromRoom({ connection, userId, roomId });
   },
 
-  async deleteRoom({ connection, roomId }) {
-    await roomRepository.deleteRoom({ connection, roomId });
+  async deleteRoom({ roomId }) {
+    const connection = await pool.getConnection();
+
+    try {
+      await roomRepository.deleteRoom({ connection, roomId });
+    } catch (error) {
+      throw error;
+    } finally {
+      connection.release();
+    }
   },
 };
 
