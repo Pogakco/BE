@@ -134,6 +134,12 @@ const roomController = {
         .json({ message: "정원이 모두 찼습니다." });
     }
 
+    if (room.isRunning) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: "집중 중인 방에는 참여할 수 없습니다." });
+    }
+
     await roomService.joinRoom({ connection, roomId, userId });
     return res.status(StatusCodes.NO_CONTENT).end();
   }),

@@ -13,7 +13,7 @@ const roomRepository = {
         short_break_time, 
         long_break_time, 
         started_at, 
-        is_running,
+        is_running AS isRunning,
         max_participants,
         COUNT(user_rooms.user_id) AS currentParticipants,
         users.id AS ownerId,
