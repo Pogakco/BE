@@ -31,12 +31,6 @@ router.get(
   roomController.getRoomDetail
 );
 
-router.delete(
-  "/:id",
-  [loginRequired, ...roomValidator.getRoomDetailValidator()],
-  roomController.deleteRoom
-);
-
 router.post(
   "/:id/join",
   [loginRequired, ...roomValidator.getRoomDetailValidator()],

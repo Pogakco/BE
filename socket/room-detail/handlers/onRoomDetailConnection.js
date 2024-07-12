@@ -5,6 +5,7 @@ import {
 import getAllLinkedUserIdsFromNamespace from "../../helpers/getAllLinkedUserIdsFromNamespace.js";
 import getUserIdFromSocket from "../../helpers/getUserIdFromSocket.js";
 import getRoomIdFromNamespace from "../helpers/getRoomIdFromNamespace.js";
+import onDeleteRoom from "./onDeleteRoom.js";
 import onRoomDetailDisconnect from "./onRoomDetailDisconnect.js";
 import onStartCycles from "./onStartCycles.js";
 
@@ -28,7 +29,7 @@ const onConnection = (socket) => {
   console.log("A user connected to room:", roomId);
 
   socket.on(SOCKET_TIMER_EVENTS.START_CYCLES, () => onStartCycles(socket));
-
+  socket.on(SOCKET_TIMER_EVENTS.DELETE_ROOM, () => onDeleteRoom(socket));
   socket.on(SOCKET_DEFAULT_EVENTS.DISCONNECT, () =>
     onRoomDetailDisconnect(socket)
   );

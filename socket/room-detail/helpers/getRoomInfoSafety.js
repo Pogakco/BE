@@ -3,10 +3,13 @@ import {
   SOCKET_TIMER_ERRORS,
   SOCKET_TIMER_EVENTS,
 } from "../../../constants.js";
+import pool from "../../../db/pool.js";
 import roomService from "../../../services/roomService.js";
 import getRoomIdFromNamespace from "./getRoomIdFromNamespace.js";
 
-const getRoomInfoSafety = async ({ connection, socket }) => {
+const getRoomInfoSafety = async ({ socket }) => {
+  const connection = await pool.getConnection();
+
   let roomInfo = null;
   let isErrorGetRoomInfo = false;
 
@@ -20,11 +23,12 @@ const getRoomInfoSafety = async ({ connection, socket }) => {
     roomInfo = camelcaseKeys(data);
   } catch (error) {
     socket.emit(SOCKET_TIMER_EVENTS.ERROR, {
-      message: SOCKET_TIMER_ERRORS.DEFAULT,
+      message: SOCKET_TIMER_ERRORS.INTERNAL_SERVER_ERROR,
     });
     console.error(error);
-    connection.release();
     isErrorGetRoomInfo = true;
+  } finally {
+    connection.release();
   }
 
   return { roomInfo, isErrorGetRoomInfo };
