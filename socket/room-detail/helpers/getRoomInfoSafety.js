@@ -3,6 +3,7 @@ import {
   SOCKET_TIMER_ERRORS,
   SOCKET_TIMER_EVENTS,
 } from "../../../constants.js";
+import pool from "../../../db/pool.js";
 import roomService from "../../../services/roomService.js";
 import getRoomIdFromNamespace from "./getRoomIdFromNamespace.js";
 
@@ -22,7 +23,7 @@ const getRoomInfoSafety = async ({ socket }) => {
     roomInfo = camelcaseKeys(data);
   } catch (error) {
     socket.emit(SOCKET_TIMER_EVENTS.ERROR, {
-      message: SOCKET_TIMER_ERRORS.DEFAULT,
+      message: SOCKET_TIMER_ERRORS.INTERNAL_SERVER_ERROR,
     });
     console.error(error);
     isErrorGetRoomInfo = true;
