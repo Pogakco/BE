@@ -176,27 +176,6 @@ const roomController = {
     await roomService.leaveRoom({ connection, roomId, userId });
     return res.status(StatusCodes.NO_CONTENT).end();
   }),
-
-  deleteRoom: errorHandler(async (req, res) => {
-    const { connection, userId } = req;
-    const roomId = parseInt(req.params.id);
-
-    const room = await roomService.getRoomById({ connection, roomId });
-    if (!room) {
-      return res
-        .status(StatusCodes.NOT_FOUND)
-        .json({ message: "존재하지 않는 방입니다." });
-    }
-
-    if (room.ownerId !== userId) {
-      return res
-        .status(StatusCodes.FORBIDDEN)
-        .json({ message: "권한이 없습니다." });
-    }
-
-    await roomService.deleteRoom({ connection, roomId });
-    return res.status(StatusCodes.NO_CONTENT).end();
-  }),
 };
 
 export default roomController;
