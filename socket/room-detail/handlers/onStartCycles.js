@@ -51,7 +51,7 @@ const onStartCycles = async (socket) => {
     clearFinishCyclesTimeout();
 
     socket.emit(SOCKET_TIMER_EVENTS.ERROR, {
-      message: SOCKET_TIMER_ERRORS.DEFAULT,
+      message: SOCKET_TIMER_ERRORS.INTERNAL_SERVER_ERROR,
     });
     console.error(error);
 

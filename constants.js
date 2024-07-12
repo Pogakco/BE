@@ -18,8 +18,8 @@ export const SOCKET_TIMER_EVENTS = {
 };
 
 export const SOCKET_TIMER_ERRORS = {
-  DEFAULT: "타이머 소켓에서 오류가 발생했습니다.",
   IS_NOT_OWNER: "방장만 타이머를 시작할 수 있습니다.",
+  INTERNAL_SERVER_ERROR: "서버 오류가 발생했습니다.",
 };
 
 export const DEFAULT_PAGE = 1;
