@@ -6,7 +6,9 @@ import {
 import roomService from "../../../services/roomService.js";
 import getRoomIdFromNamespace from "./getRoomIdFromNamespace.js";
 
-const getRoomInfoSafety = async ({ connection, socket }) => {
+const getRoomInfoSafety = async ({ socket }) => {
+  const connection = await pool.getConnection();
+
   let roomInfo = null;
   let isErrorGetRoomInfo = false;
 
@@ -23,8 +25,9 @@ const getRoomInfoSafety = async ({ connection, socket }) => {
       message: SOCKET_TIMER_ERRORS.DEFAULT,
     });
     console.error(error);
-    connection.release();
     isErrorGetRoomInfo = true;
+  } finally {
+    connection.release();
   }
 
   return { roomInfo, isErrorGetRoomInfo };

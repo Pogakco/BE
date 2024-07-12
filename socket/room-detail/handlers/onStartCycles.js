@@ -15,7 +15,6 @@ const onStartCycles = async (socket) => {
   const connection = await pool.getConnection();
 
   const { roomInfo, isErrorGetRoomInfo } = await getRoomInfoSafety({
-    connection,
     socket,
   });
   if (isErrorGetRoomInfo) {
