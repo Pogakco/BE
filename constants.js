@@ -14,12 +14,16 @@ export const SOCKET_TIMER_EVENTS = {
   SYNC_IS_RUNNING: "sync-is-running",
   SYNC_ALL_PARTICIPANTS: "sync-all-participants",
   SYNC_CURRENT_CYCLES: "sync-current-cycles",
+  ROOM_DELETED: "room-deleted",
+  DELETE_ROOM: "delete-room",
   ERROR: "timer-error",
 };
 
 export const SOCKET_TIMER_ERRORS = {
-  IS_NOT_OWNER: "방장만 타이머를 시작할 수 있습니다.",
+  IS_NOT_OWNER: "방장 권한이 없습니다.",
   INTERNAL_SERVER_ERROR: "서버 오류가 발생했습니다.",
+  NOT_FOUND_ROOM: "존재하지 않는 방입니다.",
+  PROHIBIT_DELETE_RUNNING_ROOM: "집중 중인 방은 삭제할 수 없습니다.",
 };
 
 export const DEFAULT_PAGE = 1;
