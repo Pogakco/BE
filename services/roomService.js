@@ -1,3 +1,4 @@
+import camelcaseKeys from "camelcase-keys";
 import pool from "../db/pool.js";
 import roomRepository from "../repositories/roomRepository.js";
 import timerRepository from "../repositories/timerRepository.js";
@@ -13,23 +14,26 @@ const roomService = {
     return room;
   },
 
-  async getUsersInRoom({ connection, roomId }) {
-    const participants = await userRoomRepository.findParticipants({
-      connection,
-      roomId,
-    });
-    const users = participants.map((user) => ({
-      nickname: user.nickname,
-      profileImageUrl: user.profile_image_url,
-      pomodoroCount: user.pomodoro_count,
-      isActive: user.is_active,
-    }));
-    const activeParticipants = users.filter((user) => user.isActive).length;
+  async getRoomUsersAndActiveCount({ roomId }) {
+    const connection = await pool.getConnection();
 
-    return {
-      activeParticipants,
-      users,
-    };
+    try {
+      const participants = await userRoomRepository.findParticipants({
+        connection,
+        roomId,
+      });
+      const users = camelcaseKeys(participants, { deep: true });
+      const activeParticipants = users.filter((user) => user.isActive).length;
+
+      return {
+        activeParticipants, // 카운트 수
+        users,
+      };
+    } catch (error) {
+      throw error;
+    } finally {
+      connection.release();
+    }
   },
 
   async inactiveParticipant({ connection, roomId, userId }) {

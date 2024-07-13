@@ -37,7 +37,7 @@ const roomController = {
     return res.status(StatusCodes.OK).json(room);
   }),
 
-  getRoomUsers: errorHandler(async (req, res) => {
+  getRoomUsersInfo: errorHandler(async (req, res) => {
     const roomId = parseInt(req.params.id);
     const { connection } = req;
 
@@ -47,8 +47,13 @@ const roomController = {
         .status(StatusCodes.NOT_FOUND)
         .json({ message: "존재하지 않는 방입니다." });
     }
-    const users = await roomService.getUsersInRoom({ connection, roomId });
-    return res.status(StatusCodes.OK).json(users);
+
+    const data = await roomService.getRoomUsersAndActiveCount({
+      connection,
+      roomId,
+    });
+
+    return res.status(StatusCodes.OK).json(data);
   }),
 
   getMyRooms: errorHandler(async (req, res) => {
