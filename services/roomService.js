@@ -36,12 +36,19 @@ const roomService = {
     }
   },
 
-  async inactiveParticipant({ connection, roomId, userId }) {
-    await userRoomRepository.inactiveParticipant({
-      connection,
-      roomId,
-      userId,
-    });
+  async inactiveParticipant({ roomId, userId }) {
+    const connection = await pool.getConnection();
+    try {
+      await userRoomRepository.inactiveParticipant({
+        connection,
+        roomId,
+        userId,
+      });
+    } catch (error) {
+      throw error;
+    } finally {
+      connection.release();
+    }
   },
 
   async createRoom({
