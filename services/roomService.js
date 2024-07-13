@@ -52,7 +52,6 @@ const roomService = {
   },
 
   async createRoom({
-    connection,
     roomTitle,
     userId: ownerId,
     roomDescription,
@@ -62,40 +61,52 @@ const roomService = {
     totalCycles,
     maxParticipants,
   }) {
-    const room = await roomRepository.createRoom({
-      connection,
-      roomTitle,
-      ownerId,
-      roomDescription,
-      maxParticipants,
-    });
+    const connection = await pool.getConnection();
+    await connection.beginTransaction();
 
-    const roomId = room.insertId;
+    try {
+      const room = await roomRepository.createRoom({
+        connection,
+        roomTitle,
+        ownerId,
+        roomDescription,
+        maxParticipants,
+      });
 
-    const timer = await timerRepository.createTimer({
-      connection,
-      roomId,
-      totalCycles,
-      focusTime,
-      shortBreakTime,
-      longBreakTime,
-    });
+      const roomId = room.insertId;
 
-    const timerId = timer.insertId;
+      const timer = await timerRepository.createTimer({
+        connection,
+        roomId,
+        totalCycles,
+        focusTime,
+        shortBreakTime,
+        longBreakTime,
+      });
 
-    await roomRepository.updateRoomTimer({
-      connection,
-      roomId,
-      timerId,
-    });
+      const timerId = timer.insertId;
 
-    await userRoomRepository.addUserToRoom({
-      connection,
-      userId: ownerId,
-      roomId,
-    });
+      await roomRepository.updateRoomTimer({
+        connection,
+        roomId,
+        timerId,
+      });
 
-    return { roomId };
+      await userRoomRepository.addUserToRoom({
+        connection,
+        userId: ownerId,
+        roomId,
+      });
+
+      await connection.commit();
+
+      return { roomId };
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
   },
 
   async checkUserAlreadyJoined({ connection, roomId, userId }) {

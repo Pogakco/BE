@@ -7,7 +7,7 @@ import isEmptyArray from "../utils/isEmptyArray.js";
 const timerService = {
   async startTimer({ roomId, userIds }) {
     const connection = await pool.getConnection();
-    connection.beginTransaction();
+    await connection.beginTransaction();
 
     try {
       await timerRepository.updateTimerToStart({
@@ -28,10 +28,11 @@ const timerService = {
         roomId,
       });
 
-      connection.commit();
+      await connection.commit();
 
       return data.started_at;
     } catch (error) {
+      await connection.rollback();
       throw error;
     } finally {
       connection.release();
