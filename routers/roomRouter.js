@@ -1,27 +1,29 @@
 import express from "express";
 import roomController from "../controllers/roomController.js";
+import loginRequired from "../middlewares/loginRequired.js";
 import roomValidator from "../validators/roomValidator.js";
-import injectUserId from "../validators/middlewares/injectUserId.js";
-import loginRequired from "../validators/middlewares/loginRequired.js";
 
 const router = express.Router();
 router.use(express.json());
 
 router.get(
   "/",
-  [injectUserId, ...roomValidator.getAllRoomsValidator()],
+  [
+    loginRequired({ allowAnonymous: true }),
+    ...roomValidator.getAllRoomsValidator(),
+  ],
   roomController.getRooms
 );
 
 router.post(
   "/",
-  [loginRequired, ...roomValidator.getCreateRoomValidator()],
+  [loginRequired(), ...roomValidator.getCreateRoomValidator()],
   roomController.createRoom
 );
 
 router.get(
   "/my-rooms",
-  [loginRequired, ...roomValidator.getAllRoomsValidator()],
+  [loginRequired(), ...roomValidator.getAllRoomsValidator()],
   roomController.getMyRooms
 );
 
@@ -33,13 +35,13 @@ router.get(
 
 router.post(
   "/:id/join",
-  [loginRequired, ...roomValidator.getRoomDetailValidator()],
+  [loginRequired(), ...roomValidator.getRoomDetailValidator()],
   roomController.joinRoom
 );
 
 router.delete(
   "/:id/leave",
-  [loginRequired, ...roomValidator.getRoomDetailValidator()],
+  [loginRequired(), ...roomValidator.getRoomDetailValidator()],
   roomController.leaveRoom
 );
 

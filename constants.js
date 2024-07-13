@@ -1,5 +1,3 @@
-export const ACCESS_TOKEN_KEY = "access_token";
-
 export const IS_DEV_MODE = process.env.NODE_ENV === "development";
 
 export const SOCKET_DEFAULT_EVENTS = {
@@ -44,3 +42,34 @@ export const AWS_S3_DIRECTORY = IS_DEV_MODE
   ? DEVELOPMENT_AWS_S3_DIRECTORY
   : PRODUCTION_AWS_S3_DIRECTORY;
 /* ---------------- */
+
+export const SECOND_MS = 1000;
+export const MINUTE_MS = 60 * SECOND_MS;
+export const HOUR_MS = 60 * MINUTE_MS;
+export const DAY_MS = 24 * HOUR_MS;
+
+export const ACCESS_TOKEN_KEY = "access_token";
+export const ACCESS_TOKEN_EXPIRES_IN = "30m";
+export const ACCESS_TOKEN_ISSUER = "pogakco";
+export const REFRESH_TOKEN_KEY = "refresh_token";
+export const REFRESH_TOKEN_MAX_AGE = 14 * DAY_MS;
+export const ACCESS_TOKEN_COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: !IS_DEV_MODE,
+  sameSite: "lax",
+  maxAge: REFRESH_TOKEN_MAX_AGE, // Access Token이 사라지면 Refresh Token을 통해 재발급 받을 수 없으므로 길게 설정했지만 코드 개선 필요
+};
+export const REFRESH_TOKEN_COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: !IS_DEV_MODE,
+  sameSite: "lax",
+  maxAge: REFRESH_TOKEN_MAX_AGE,
+};
+
+export const AUTHENTICATE_ERROR_TYPE = {
+  TOKEN_NOT_FOUND: "TOKEN_NOT_FOUND",
+  INVALID_REFRESH_TOKEN: "INVALID_REFRESH_TOKEN",
+  INVALID_ACCESS_TOKEN: "INVALID_ACCESS_TOKEN",
+};
+
+export const TIMESTAMP_FORMAT = "YYYY-MM-DD HH:mm:ss";

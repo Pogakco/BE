@@ -1,5 +1,11 @@
 import { StatusCodes } from "http-status-codes";
-import { ACCESS_TOKEN_KEY, AWS_S3_DIRECTORY } from "../constants.js";
+import {
+  ACCESS_TOKEN_COOKIE_OPTIONS,
+  ACCESS_TOKEN_KEY,
+  AWS_S3_DIRECTORY,
+  REFRESH_TOKEN_COOKIE_OPTIONS,
+  REFRESH_TOKEN_KEY,
+} from "../constants.js";
 import deleteFileFromS3 from "../helpers/deleteFileFromS3.js";
 import uploadFileToS3 from "../helpers/uploadFileToS3.js";
 import userService from "../services/userService.js";
@@ -7,9 +13,9 @@ import errorHandler from "./helpers/errorHandler.js";
 
 const userController = {
   auth: errorHandler(async (req, res) => {
-    const accessToken = req.cookies[ACCESS_TOKEN_KEY];
+    const { userId } = req;
 
-    const isLogin = await userService.verifyLoginStatus({ accessToken });
+    const isLogin = !!userId;
 
     return res.status(StatusCodes.OK).json({ isLogin });
   }),
@@ -41,35 +47,41 @@ const userController = {
   }),
 
   login: errorHandler(async (req, res) => {
-    const { connection } = req;
     const { email, password } = req.body;
 
-    const isValidUser = await userService.validateUser({
-      connection,
+    const validUser = await userService.validateUser({
       email,
       password,
     });
-    if (!isValidUser) {
+    if (!validUser) {
       return res
         .status(StatusCodes.UNAUTHORIZED)
         .json({ message: "회원 정보가 잘못되었습니다." });
     }
+    const { id: userId } = validUser;
 
-    const accessToken = await userService.issueAccessToken({
-      connection,
-      email,
+    const accessToken = userService.issueAccessToken({
+      userId,
     });
-    res.cookie(ACCESS_TOKEN_KEY, accessToken, {
-      httpOnly: true,
-      // secure: !IS_DEV_MODE, TODO: 운영 환경 HTTPS 적용 후 주석 해제
-      sameSite: "lax",
+    res.cookie(ACCESS_TOKEN_KEY, accessToken, ACCESS_TOKEN_COOKIE_OPTIONS);
+
+    const refreshToken = await userService.createRefreshToken({
+      userId,
     });
+    res.cookie(REFRESH_TOKEN_KEY, refreshToken, REFRESH_TOKEN_COOKIE_OPTIONS);
 
     return res.status(StatusCodes.NO_CONTENT).end();
   }),
 
   logout: errorHandler(async (req, res) => {
+    const { userId } = req;
+    const refreshToken = req.cookies[REFRESH_TOKEN_KEY];
+
+    await userService.deleteRefreshToken({ userId, refreshToken });
+
     res.clearCookie(ACCESS_TOKEN_KEY);
+    res.clearCookie(REFRESH_TOKEN_KEY);
+
     return res.status(StatusCodes.NO_CONTENT).end();
   }),
 

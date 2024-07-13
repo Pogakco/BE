@@ -1,4 +1,12 @@
+import { randomUUID } from "crypto";
+import dayjs from "dayjs";
 import jwt from "jsonwebtoken";
+import {
+  ACCESS_TOKEN_EXPIRES_IN,
+  ACCESS_TOKEN_ISSUER,
+  AUTHENTICATE_ERROR_TYPE,
+} from "../constants.js";
+import pool from "../db/pool.js";
 import convertHashedPassword from "../helpers/convertHashedPassword.js";
 import deleteFileFromS3 from "../helpers/deleteFileFromS3.js";
 import generateSalt from "../helpers/generateSalt.js";
@@ -63,17 +71,66 @@ const userService = {
     }
   },
 
-  async verifyLoginStatus({ accessToken }) {
-    if (!accessToken) {
-      return false;
+  async authenticate({ accessToken, refreshToken }) {
+    const result = {
+      isAuthError: false,
+      authErrorType: null,
+      authErrorMessage: null,
+      newAccessToken: null,
+      newRefreshToken: null,
+      userId: null,
+    };
+
+    if (!accessToken || !refreshToken) {
+      result.authErrorType = AUTHENTICATE_ERROR_TYPE.TOKEN_NOT_FOUND;
+      result.isAuthError = true;
+      result.authErrorMessage = "토큰이 존재하지 않습니다.";
+      return result;
     }
+
+    const refreshTokenInfo = await this.getRefreshTokenInfoByValue({
+      refreshToken,
+    });
+    if (!refreshTokenInfo) {
+      result.authErrorType = AUTHENTICATE_ERROR_TYPE.INVALID_REFRESH_TOKEN;
+      result.isAuthError = true;
+      result.authErrorMessage = "유효하지 않은 리프레시 토큰 입니다.";
+      return result;
+    }
+
+    const { user_id: userId, expire_date: refreshTokenExpireDate } =
+      refreshTokenInfo;
+
+    result.userId = userId;
 
     try {
       const JWT_PRIVATE_KEY = process.env.JWT_PRIVATE_KEY;
       jwt.verify(accessToken, JWT_PRIVATE_KEY);
-      return true;
+
+      return result;
     } catch (error) {
-      return false;
+      const isTokenRefreshable =
+        error instanceof jwt.TokenExpiredError &&
+        dayjs().isBefore(dayjs(refreshTokenExpireDate));
+
+      if (isTokenRefreshable) { 
+        result.newAccessToken = this.issueAccessToken({
+          userId,
+        });
+
+        result.newRefreshToken = await this.reissueRefreshToken({
+          userId,
+          refreshToken,
+        });
+
+        return result;
+      }
+
+      result.authErrorType = AUTHENTICATE_ERROR_TYPE.INVALID_ACCESS_TOKEN;
+      result.isAuthError = true;
+      result.authErrorMessage = "유효하지 않은 토큰입니다.";
+
+      return result;
     }
   },
 
@@ -90,31 +147,38 @@ const userService = {
     });
   },
 
-  async validateUser({ connection, email, password }) {
-    const dbUserData = await userRepository.findUserByEmail({
-      connection,
-      email,
-    });
+  async validateUser({ email, password }) {
+    const connection = await pool.getConnection();
 
-    if (!dbUserData) {
-      return false;
-    }
-    if (
-      dbUserData.password !== convertHashedPassword(password, dbUserData.salt)
-    ) {
-      return false;
-    }
+    try {
+      const dbUserData = await userRepository.findUserByEmail({
+        connection,
+        email,
+      });
 
-    return true;
+      if (!dbUserData) {
+        return null;
+      }
+
+      if (
+        dbUserData.password !== convertHashedPassword(password, dbUserData.salt)
+      ) {
+        return null;
+      }
+
+      return dbUserData;
+    } catch (error) {
+      throw error;
+    } finally {
+      connection.release();
+    }
   },
 
-  async issueAccessToken({ connection, email }) {
-    const user = await userRepository.findUserByEmail({ connection, email });
-
+  issueAccessToken({ userId }) {
     const JWT_PRIVATE_KEY = process.env.JWT_PRIVATE_KEY;
-    const accessToken = jwt.sign({ id: user.id }, JWT_PRIVATE_KEY, {
-      expiresIn: "30m",
-      issuer: "pogakco",
+    const accessToken = jwt.sign({ id: userId }, JWT_PRIVATE_KEY, {
+      expiresIn: ACCESS_TOKEN_EXPIRES_IN,
+      issuer: ACCESS_TOKEN_ISSUER,
     });
 
     return accessToken;
@@ -128,6 +192,90 @@ const userService = {
 
     const hashedPassword = convertHashedPassword(password, userData.salt);
     return hashedPassword === userData.password;
+  },
+
+  async getRefreshTokenInfoByValue({ refreshToken }) {
+    const connection = await pool.getConnection();
+    let result = null;
+
+    try {
+      result = await userRepository.findRefreshTokenByValue({
+        connection,
+        refreshToken,
+      });
+    } catch (error) {
+      throw error;
+    } finally {
+      connection.release();
+    }
+
+    return result;
+  },
+
+  async createRefreshToken({ userId }) {
+    const connection = await pool.getConnection();
+    const refreshToken = randomUUID();
+
+    try {
+      await userRepository.createRefreshToken({
+        connection,
+        userId,
+        refreshToken,
+      });
+    } catch (error) {
+      throw error;
+    } finally {
+      connection.release();
+    }
+
+    return refreshToken;
+  },
+
+  async deleteRefreshToken({ userId, refreshToken }) {
+    const connection = await pool.getConnection();
+
+    try {
+      await userRepository.deleteRefreshToken({
+        connection,
+        userId,
+        refreshToken,
+      });
+    } catch (error) {
+      throw error;
+    } finally {
+      connection.release();
+    }
+  },
+
+  async reissueRefreshToken({ userId, refreshToken }) {
+    const connection = await pool.getConnection();
+
+    try {
+      await connection.beginTransaction();
+
+      await userRepository.deleteRefreshToken({
+        connection,
+        userId,
+        refreshToken,
+      });
+
+      const newRefreshToken = randomUUID();
+      await userRepository.createRefreshToken({
+        connection,
+        userId,
+        refreshToken: newRefreshToken,
+      });
+
+      await connection.commit();
+
+      return newRefreshToken;
+    } catch (error) {
+      await connection.rollback();
+
+      throw error;
+    } finally {
+      connection.release();
+    }
   },
 };
 

@@ -5,6 +5,7 @@ import { createServer } from "node:http";
 import { SOCKET_DEFAULT_EVENTS } from "./constants.js";
 import checkDBConnection from "./db/helpers/checkDBConnection.js";
 import convertSnakeToCamelResponse from "./middlewares/convertSnakeToCamelResponse.js";
+import defaultErrorHandler from "./middlewares/defaultErrorHandler.js";
 import userRouter from "./routers/userRouter.js";
 import createIo from "./socket/helpers/createIo.js";
 import onRoomDetailConnection from "./socket/room-detail/handlers/onRoomDetailConnection.js";
@@ -30,5 +31,7 @@ app.use(cookieParser());
 
 app.use("/", userRouter);
 app.use("/rooms", roomRouter);
+
+app.use(defaultErrorHandler);
 
 server.listen(port);

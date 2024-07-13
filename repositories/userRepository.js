@@ -1,3 +1,5 @@
+import dayjs from "dayjs";
+import { REFRESH_TOKEN_MAX_AGE, TIMESTAMP_FORMAT } from "../constants.js";
 import isEmptyArray from "../utils/isEmptyArray.js";
 
 const userRepository = {
@@ -56,6 +58,40 @@ const userRepository = {
         (field) => !!field
       )
     );
+  },
+
+  async findRefreshTokenByValue({ connection, refreshToken }) {
+    const SQL = `
+      SELECT *
+      FROM refresh_tokens
+      WHERE value = ?
+    `;
+
+    const [data] = await connection.query(SQL, [refreshToken]);
+
+    return isEmptyArray(data) ? null : data[0];
+  },
+
+  async createRefreshToken({ connection, userId, refreshToken }) {
+    const SQL = `
+      INSERT INTO refresh_tokens (user_id, expire_date, value)
+      VALUES (?, ?, ?)
+    `;
+
+    const expireDate = dayjs()
+      .add(REFRESH_TOKEN_MAX_AGE, "millisecond")
+      .format(TIMESTAMP_FORMAT);
+
+    await connection.query(SQL, [userId, expireDate, refreshToken]);
+  },
+
+  async deleteRefreshToken({ connection, userId, refreshToken }) {
+    const SQL = `
+      DELETE FROM refresh_tokens
+      WHERE user_id = ? AND value = ?;
+    `;
+
+    await connection.query(SQL, [userId, refreshToken]);
   },
 };
 

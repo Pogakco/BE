@@ -1,14 +1,18 @@
 import express from "express";
 import multerErrorHandler from "../controllers/helpers/multerErrorHandler.js";
 import userController from "../controllers/userController.js";
+import loginRequired from "../middlewares/loginRequired.js";
 import multerUpload from "../middlewares/multerUpload.js";
-import loginRequired from "../validators/middlewares/loginRequired.js";
 import userValidator from "../validators/userValidator.js";
 
 const router = express.Router();
 router.use(express.json());
 
-router.post("/auth", userController.auth);
+router.post(
+  "/auth",
+  [loginRequired({ skipAuthError: true })],
+  userController.auth
+);
 
 router.post(
   "/signup",
@@ -22,7 +26,7 @@ router.post(
   userController.login
 );
 
-router.post("/logout", [loginRequired], userController.logout);
+router.post("/logout", [loginRequired()], userController.logout);
 
 router.post(
   "/check-email",
@@ -36,12 +40,12 @@ router.post(
   userController.checkNickname
 );
 
-router.get("/users/me", [loginRequired], userController.myProfile);
+router.get("/users/me", [loginRequired()], userController.myProfile);
 
 router.post(
   "/users/me",
   [
-    loginRequired,
+    loginRequired(),
     multerErrorHandler(multerUpload.single("profileImage")),
     ...userValidator.getUpdateMyProfileValidator(),
   ],
@@ -50,7 +54,7 @@ router.post(
 
 router.post(
   "/users/me/confirm-password",
-  [loginRequired, ...userValidator.getCheckPasswordValidator()],
+  [loginRequired(), ...userValidator.getCheckPasswordValidator()],
   userController.confirmPassword
 );
 
