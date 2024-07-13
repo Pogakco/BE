@@ -34,7 +34,7 @@ const roomListRepository = {
         max_participants,
         users.nickname AS ownerName,
         users.profile_image_url AS ownerProfileImageUrl,
-        COUNT(user_rooms.user_id) AS currentParticipants
+        (SELECT COUNT(*) FROM user_rooms WHERE user_rooms.room_id = rooms.id) AS currentParticipants
       FROM rooms
       LEFT JOIN timers ON rooms.timer_id = timers.id
       LEFT JOIN users ON rooms.owner_id = users.id
