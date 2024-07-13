@@ -3,14 +3,13 @@ import timerService from "../../../services/timerService.js";
 import getAllLinkedUserIdsFromNamespace from "../../helpers/getAllLinkedUserIdsFromNamespace.js";
 import getRoomIdFromNamespace from "./getRoomIdFromNamespace.js";
 
-const startTimer = async ({ connection, socket }) => {
+const startTimer = async ({ socket }) => {
   const roomDetailNamespace = socket.nsp;
   const roomId = getRoomIdFromNamespace(roomDetailNamespace);
   const allLinkedUserIds =
     getAllLinkedUserIdsFromNamespace(roomDetailNamespace);
 
   const startedAt = await timerService.startTimer({
-    connection,
     roomId,
     userIds: allLinkedUserIds,
   });

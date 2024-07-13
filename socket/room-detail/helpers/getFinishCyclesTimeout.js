@@ -4,7 +4,7 @@ import timerService from "../../../services/timerService.js";
 import { calculateTimerTotalMsWithDelay } from "./calculateMs.js";
 import getRoomIdFromNamespace from "./getRoomIdFromNamespace.js";
 
-const finishCyclesTimeoutGetter = ({ connection, socket, roomInfo }) => {
+const finishCyclesTimeoutGetter = ({ socket, roomInfo }) => {
   let finishCyclesTimeout; // 클로저의 자유 변수
 
   const { totalCycles, focusTime, shortBreakTime, longBreakTime } = roomInfo;
@@ -32,7 +32,6 @@ const finishCyclesTimeoutGetter = ({ connection, socket, roomInfo }) => {
             .emit(SOCKET_TIMER_EVENTS.SYNC_CURRENT_CYCLES, 0);
 
           const { allParticipants } = await timerService.finishTimer({
-            connection,
             roomId,
           });
 

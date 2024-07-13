@@ -4,7 +4,7 @@ import timerService from "../../../services/timerService.js";
 import { calculateOnePomodoroMs } from "./calculateMs.js";
 import getRoomIdFromNamespace from "./getRoomIdFromNamespace.js";
 
-const getPomodoroInterval = ({ connection, socket, roomInfo }) => {
+const getPomodoroInterval = ({ socket, roomInfo }) => {
   let pomodoroInterval; // 클로저의 자유 변수
 
   const { totalCycles, focusTime, shortBreakTime } = roomInfo;
@@ -26,7 +26,7 @@ const getPomodoroInterval = ({ connection, socket, roomInfo }) => {
           console.log(pomodoroCount + 1, "뽀모도로 끝");
 
           const { increasedCurrentCycles, allParticipants } =
-            await timerService.finishPomodoro({ connection, roomId });
+            await timerService.finishPomodoro({ roomId });
 
           roomDetailNamespace
             .to(roomId)
