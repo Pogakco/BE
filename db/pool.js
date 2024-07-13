@@ -8,7 +8,7 @@ export const poolOption = {
   database: process.env.DB_NAME,
   dateStrings: true,
   waitForConnections: true,
-  connectionLimit: 100,
+  connectionLimit: 20,
   maxIdle: 10,
   idleTimeout: 60000,
   queueLimit: 0,
