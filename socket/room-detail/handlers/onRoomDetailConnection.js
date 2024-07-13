@@ -1,7 +1,9 @@
 import {
   SOCKET_DEFAULT_EVENTS,
+  SOCKET_TIMER_ERRORS,
   SOCKET_TIMER_EVENTS,
 } from "../../../constants.js";
+import roomService from "../../../services/roomService.js";
 import getAllLinkedUserIdsFromNamespace from "../../helpers/getAllLinkedUserIdsFromNamespace.js";
 import getUserIdFromSocket from "../../helpers/getUserIdFromSocket.js";
 import getRoomIdFromNamespace from "../helpers/getRoomIdFromNamespace.js";
@@ -9,7 +11,7 @@ import onDeleteRoom from "./onDeleteRoom.js";
 import onRoomDetailDisconnect from "./onRoomDetailDisconnect.js";
 import onStartCycles from "./onStartCycles.js";
 
-const onConnection = (socket) => {
+const onConnection = async (socket) => {
   const roomId = getRoomIdFromNamespace(socket.nsp);
   const userId = getUserIdFromSocket(socket);
 
@@ -24,6 +26,20 @@ const onConnection = (socket) => {
         SOCKET_TIMER_EVENTS.SYNC_ALL_LINKED_USER_IDS,
         getAllLinkedUserIdsFromNamespace(roomDetailNamespace)
       );
+
+    try {
+      const { users: allParticipants } =
+        await roomService.getRoomUsersAndActiveCount({ roomId });
+
+      roomDetailNamespace
+        .to(roomId)
+        .emit(SOCKET_TIMER_EVENTS.SYNC_ALL_PARTICIPANTS, allParticipants);
+    } catch (error) {
+      socket.emit(SOCKET_TIMER_EVENTS.ERROR, {
+        message: SOCKET_TIMER_ERRORS.INTERNAL_SERVER_ERROR,
+      });
+      return;
+    }
   }
 
   console.log("A user connected to room:", roomId);

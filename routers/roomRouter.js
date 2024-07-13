@@ -46,7 +46,7 @@ router.delete(
 router.get(
   "/:id/users",
   [...roomValidator.getRoomDetailValidator()],
-  roomController.getRoomUsers
+  roomController.getRoomUsersInfo
 );
 
 export default router;
