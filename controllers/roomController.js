@@ -76,35 +76,31 @@ const roomController = {
     return res.status(StatusCodes.OK).json(myRooms);
   }),
 
-  createRoom: errorHandler(
-    async (req, res) => {
-      const { connection, userId } = req;
-      const {
-        roomTitle,
-        roomDescription,
-        focusTime,
-        shortBreakTime,
-        longBreakTime,
-        totalCycles,
-        maxParticipants,
-      } = req.body;
+  createRoom: errorHandler(async (req, res) => {
+    const { userId } = req;
+    const {
+      roomTitle,
+      roomDescription,
+      focusTime,
+      shortBreakTime,
+      longBreakTime,
+      totalCycles,
+      maxParticipants,
+    } = req.body;
 
-      const result = await roomService.createRoom({
-        connection,
-        roomTitle,
-        userId,
-        roomDescription,
-        focusTime,
-        shortBreakTime,
-        longBreakTime,
-        totalCycles,
-        maxParticipants,
-      });
+    const result = await roomService.createRoom({
+      roomTitle,
+      userId,
+      roomDescription,
+      focusTime,
+      shortBreakTime,
+      longBreakTime,
+      totalCycles,
+      maxParticipants,
+    });
 
-      return res.status(StatusCodes.OK).json(result);
-    },
-    { transaction: true }
-  ),
+    return res.status(StatusCodes.OK).json(result);
+  }),
 
   joinRoom: errorHandler(async (req, res) => {
     const { connection, userId } = req;

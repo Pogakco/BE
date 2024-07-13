@@ -2,7 +2,6 @@ import {
   SOCKET_TIMER_ERRORS,
   SOCKET_TIMER_EVENTS,
 } from "../../../constants.js";
-import pool from "../../../db/pool.js";
 import timerService from "../../../services/timerService.js";
 import getUserIdFromSocket from "../../helpers/getUserIdFromSocket.js";
 import getFinishCyclesTimeout from "../helpers/getFinishCyclesTimeout.js";
@@ -12,8 +11,6 @@ import getRoomInfoSafety from "../helpers/getRoomInfoSafety.js";
 import startTimer from "../helpers/startTimer.js";
 
 const onStartCycles = async (socket) => {
-  const connection = await pool.getConnection();
-
   const { roomInfo, isErrorGetRoomInfo } = await getRoomInfoSafety({
     socket,
   });
@@ -22,12 +19,11 @@ const onStartCycles = async (socket) => {
   }
 
   const { clearPomodoroInterval, startPomodoroInterval } = getPomodoroInterval({
-    connection,
     socket,
     roomInfo,
   });
   const { clearFinishCyclesTimeout, startFinishCyclesTimeout } =
-    getFinishCyclesTimeout({ connection, socket, roomInfo });
+    getFinishCyclesTimeout({ socket, roomInfo });
 
   try {
     const { isRunning, ownerId } = roomInfo;
@@ -44,7 +40,7 @@ const onStartCycles = async (socket) => {
       return;
     }
 
-    await startTimer({ connection, socket });
+    await startTimer({ socket });
     await Promise.all([startPomodoroInterval(), startFinishCyclesTimeout()]);
   } catch (error) {
     clearPomodoroInterval();
@@ -57,12 +53,11 @@ const onStartCycles = async (socket) => {
 
     await timerService
       .finishTimer({
-        connection,
         roomId: getRoomIdFromNamespace(socket.nsp),
       })
-      .catch(() => {});
-  } finally {
-    connection.release();
+      .catch((error) => {
+        console.log(error);
+      });
   }
 };
 

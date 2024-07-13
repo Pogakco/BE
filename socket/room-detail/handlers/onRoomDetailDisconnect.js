@@ -9,8 +9,6 @@ import getUserIdFromSocket from "../../helpers/getUserIdFromSocket.js";
 import getRoomIdFromNamespace from "../helpers/getRoomIdFromNamespace.js";
 
 const onRoomDetailDisconnect = async (socket) => {
-  const connection = await pool.getConnection();
-
   const roomId = getRoomIdFromNamespace(socket.nsp);
   const userId = getUserIdFromSocket(socket);
 
@@ -27,7 +25,7 @@ const onRoomDetailDisconnect = async (socket) => {
       );
 
     // inactive 상태로 DB Update
-    await roomService.inactiveParticipant({ connection, roomId, userId });
+    await roomService.inactiveParticipant({ roomId, userId });
 
     // 참가자 목록 클라이언트에 동기화
     try {
