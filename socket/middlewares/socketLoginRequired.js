@@ -65,7 +65,7 @@ const socketLoginRequired = (options = defaultOptions) => {
         return next();
       }
 
-      // 클라이언트 측에서 인증 API를 호출해서 쿠키를 제거 하고, 로그인 페이지로 리다이렉트
+      // 클라이언트 측에서 인증 API를 호출해서 쿠키를 제거 하고, 에러 토스트 메세지 반환
       socket.emit(SOCKET_COMMON_EVENTS.AUTH_ERROR);
 
       return next();
