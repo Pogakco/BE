@@ -27,13 +27,21 @@ const createRoomIdParamChain = () => {
 };
 
 const createRoomTitleChain = () => {
-  return body("roomTitle").notEmpty().withMessage("방 제목을 입력해주세요.");
+  return body("roomTitle")
+    .notEmpty()
+    .withMessage("방 제목을 입력해주세요.")
+    .bail()
+    .isLength({ max: 20 })
+    .withMessage("방 제목은 20자 이내여야 합니다.");
 };
 
 const createRoomDescriptionChain = () => {
   return body("roomDescription")
     .notEmpty()
-    .withMessage("방 설명을 입력해주세요.");
+    .withMessage("방 설명을 입력해주세요.")
+    .bail()
+    .isLength({ max: 80 })
+    .withMessage("방 설명은 80자 이내여야 합니다.");
 };
 
 const createFocusTimeChain = () => {
