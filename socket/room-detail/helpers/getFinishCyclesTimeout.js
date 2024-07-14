@@ -1,4 +1,3 @@
-import camelcaseKeys from "camelcase-keys";
 import { SOCKET_TIMER_EVENTS } from "../../../constants.js";
 import timerService from "../../../services/timerService.js";
 import { calculateTimerTotalMsWithDelay } from "./calculateMs.js";
@@ -31,7 +30,7 @@ const finishCyclesTimeoutGetter = ({ socket, roomInfo }) => {
             .to(roomId)
             .emit(SOCKET_TIMER_EVENTS.SYNC_CURRENT_CYCLES, 0);
 
-          const { allParticipants } = await timerService.finishTimer({
+          const { roomUsersAndActiveCount } = await timerService.finishTimer({
             roomId,
           });
 
@@ -39,7 +38,7 @@ const finishCyclesTimeoutGetter = ({ socket, roomInfo }) => {
             .to(roomId)
             .emit(
               SOCKET_TIMER_EVENTS.SYNC_ALL_PARTICIPANTS,
-              camelcaseKeys(allParticipants)
+              roomUsersAndActiveCount
             );
 
           resolve();
