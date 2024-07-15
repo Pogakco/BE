@@ -3,7 +3,6 @@ import {
   ACCESS_TOKEN_COOKIE_OPTIONS,
   ACCESS_TOKEN_KEY,
   AUTHENTICATE_ERROR_TYPE,
-  REFRESH_TOKEN_COOKIE_OPTIONS,
   REFRESH_TOKEN_KEY,
 } from "../constants.js";
 import userService from "../services/userService.js";
@@ -14,7 +13,7 @@ const defaultOptions = {
 };
 
 const loginRequired = (options = defaultOptions) => {
-  const { allowAnonymous, skipAuthError } = options;
+  const { allowAnonymous, skipAuthError } = { ...defaultOptions, ...options };
 
   return async (req, res, next) => {
     const accessToken = req.cookies[ACCESS_TOKEN_KEY];
@@ -35,7 +34,6 @@ const loginRequired = (options = defaultOptions) => {
       isAuthError,
       authErrorMessage,
       newAccessToken,
-      newRefreshToken,
       userId,
     } = authenticateResult;
 
@@ -63,17 +61,11 @@ const loginRequired = (options = defaultOptions) => {
         .json({ message: authErrorMessage });
     }
 
-    if (newAccessToken && newRefreshToken) {
+    if (newAccessToken) {
       res.cookie(ACCESS_TOKEN_KEY, newAccessToken, ACCESS_TOKEN_COOKIE_OPTIONS);
-      res.cookie(
-        REFRESH_TOKEN_KEY,
-        newRefreshToken,
-        REFRESH_TOKEN_COOKIE_OPTIONS
-      );
-
+      
       // Controller에서 사용 될 req.cookies도 업데이트
       req.cookies[ACCESS_TOKEN_KEY] = newAccessToken;
-      req.cookies[REFRESH_TOKEN_KEY] = newRefreshToken;
     }
 
     req.userId = userId;

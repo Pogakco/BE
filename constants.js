@@ -5,6 +5,11 @@ export const SOCKET_DEFAULT_EVENTS = {
   DISCONNECT: "disconnect",
 };
 
+export const SOCKET_COMMON_EVENTS = {
+  REQUEST_AUTH: "request-auth",
+  AUTH_ERROR: "auth-error",
+};
+
 export const SOCKET_TIMER_EVENTS = {
   SYNC_ALL_LINKED_USER_IDS: "sync-all-linked-user-ids",
   START_CYCLES: "start-cycles",
@@ -68,6 +73,7 @@ export const REFRESH_TOKEN_COOKIE_OPTIONS = {
 
 export const AUTHENTICATE_ERROR_TYPE = {
   TOKEN_NOT_FOUND: "TOKEN_NOT_FOUND",
+  EXPIRED_REFRESH_TOKEN: "EXPIRED_REFRESH_TOKEN",
   INVALID_REFRESH_TOKEN: "INVALID_REFRESH_TOKEN",
   INVALID_ACCESS_TOKEN: "INVALID_ACCESS_TOKEN",
 };
