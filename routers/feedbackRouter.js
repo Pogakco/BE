@@ -8,7 +8,7 @@ router.use(express.json());
 router.post(
   "/",
   [...feedbackValidator.getFeedbackValidator()],
-  feedbackController.postFeedback
+  feedbackController.createFeedback
 );
 
 export default router;

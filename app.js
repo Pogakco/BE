@@ -32,7 +32,7 @@ app.use(cookieParser());
 
 app.use("/", userRouter);
 app.use("/rooms", roomRouter);
-app.use("/feedback", feedbackRouter);
+app.use("/feedbacks", feedbackRouter);
 
 app.use(defaultErrorHandler);
 

@@ -3,7 +3,7 @@ import errorHandler from "./helpers/errorHandler.js";
 import feedbackService from "../services/feedbackService.js";
 
 const feedbackController = {
-  postFeedback: errorHandler(async (req, res) => {
+  createFeedback: errorHandler(async (req, res) => {
     const { contents } = req.body;
     const { connection } = req;
     await feedbackService.createFeedback({ connection, contents });

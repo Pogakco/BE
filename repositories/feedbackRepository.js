@@ -1,5 +1,5 @@
 const feedbackRepository = {
-  async addFeedback({ connection, contents }) {
+  async createFeedback({ connection, contents }) {
     const SQL = "INSERT INTO `feedbacks` (`contents`) VALUES (?);";
 
     await connection.query(SQL, [contents]);
