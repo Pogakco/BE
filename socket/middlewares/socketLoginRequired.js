@@ -16,6 +16,11 @@ const socketLoginRequired = (options = defaultOptions) => {
   const { allowAnonymous, skipAuthError } = { ...defaultOptions, ...options };
 
   return async (socket, next) => {
+    // prependAny같이, onConnection에서 next 없이 미들웨어를 사용하기 위해 정의
+    const nextSafety = (error) => {
+      return next && next(error);
+    };
+
     const rawCookies = socket.handshake.headers.cookie || "";
     const cookies = cookie.parse(rawCookies);
 
@@ -30,7 +35,7 @@ const socketLoginRequired = (options = defaultOptions) => {
       });
     } catch (error) {
       console.error(error);
-      return next(error);
+      return nextSafety(error);
     }
 
     const {
@@ -45,7 +50,8 @@ const socketLoginRequired = (options = defaultOptions) => {
       allowAnonymous &&
       authErrorType === AUTHENTICATE_ERROR_TYPE.TOKEN_NOT_FOUND
     ) {
-      return next();
+      console.log("[인증]비로그인 유저");
+      return nextSafety();
     }
 
     if (isAuthError) {
@@ -62,23 +68,28 @@ const socketLoginRequired = (options = defaultOptions) => {
       }
 
       if (skipAuthError) {
-        return next();
+        return nextSafety();
       }
 
       // 클라이언트 측에서 인증 API를 호출해서 쿠키를 제거 하고, 에러 토스트 메세지 반환
       socket.emit(SOCKET_COMMON_EVENTS.AUTH_ERROR);
 
-      return next();
+      return nextSafety();
     }
 
     if (newAccessToken) {
+      console.log("[인증]로그인 유저 토큰 재발급 요청");
       // 클라이언트에서 인증 API 호출을 통해 토큰 재발급
       socket.emit(SOCKET_COMMON_EVENTS.REQUEST_AUTH);
     }
 
+    if (!newAccessToken) {
+      console.log("[인증]로그인 유저 인증 성공");
+    }
+
     socket.userId = userId;
 
-    return next();
+    return nextSafety();
   };
 };
 
