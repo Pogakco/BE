@@ -17,16 +17,16 @@ const onConnection = async (socket) => {
 
   socket.join(roomId);
 
+  const roomDetailNamespace = socket.nsp;
+  roomDetailNamespace
+    .to(roomId)
+    .emit(
+      SOCKET_TIMER_EVENTS.SYNC_ALL_LINKED_USER_IDS,
+      getAllLinkedUserIdsFromNamespace(roomDetailNamespace)
+    );
+
   // 로그인 한 유저일 때만 클라이언트에 동기화
   if (userId) {
-    const roomDetailNamespace = socket.nsp;
-    roomDetailNamespace
-      .to(roomId)
-      .emit(
-        SOCKET_TIMER_EVENTS.SYNC_ALL_LINKED_USER_IDS,
-        getAllLinkedUserIdsFromNamespace(roomDetailNamespace)
-      );
-
     try {
       const { users: allParticipants } =
         await roomService.getRoomUsersAndActiveCount({ roomId });
