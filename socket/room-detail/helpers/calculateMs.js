@@ -1,11 +1,14 @@
-import { SECOND_MS } from "../../../constants.js";
+import { IS_DEV_MODE, MINUTE_MS, SECOND_MS } from "../../../constants.js";
+
+// 단위 시간을 개발(1초), 운영(1분) 환경 별로 다르게 설정
+const TIME_UNIT = IS_DEV_MODE ? SECOND_MS : MINUTE_MS;
 
 export const calculateOnePomodoroMs = ({ focusTime, shortBreakTime }) => {
-  return (focusTime + shortBreakTime) * SECOND_MS; // TODO: 타이머 개발단계 마무리 되면 MINUTE_MS으로 변경
+  return (focusTime + shortBreakTime) * TIME_UNIT;
 };
 
 const calculateLongBreakTimeMs = (longBreakTime) => {
-  return longBreakTime * SECOND_MS; // TODO: 타이머 개발단계 마무리 되면 MINUTE_MS으로 변경
+  return longBreakTime * TIME_UNIT;
 };
 
 const calculateTimerTotalMs = ({
