@@ -1,7 +1,7 @@
 import feedbackRepository from "../repositories/feedbackRepository.js";
 
 const feedbackService = {
-  async postFeedback({ connection, contents }) {
+  async createFeedback({ connection, contents }) {
     await feedbackRepository.addFeedback({ connection, contents });
   },
 };
