@@ -46,6 +46,11 @@ const socketLoginRequired = (options = defaultOptions) => {
       newAccessToken,
     } = authenticateResult;
 
+    // 이벤트 인터셉터(prependAnyOutgoing, ...)에 의해 인증에 실패했을 경우를 고려해서 기존 userId를 제거
+    if (isAuthError) {
+      socket.userId = null;
+    }
+
     if (
       allowAnonymous &&
       authErrorType === AUTHENTICATE_ERROR_TYPE.TOKEN_NOT_FOUND

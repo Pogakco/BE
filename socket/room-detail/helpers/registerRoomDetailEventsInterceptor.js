@@ -13,6 +13,19 @@ const registerRoomDetailEventsInterceptor = (socket) => {
   const roomId = getRoomIdFromNamespace(roomDetailNamespace);
   const userId = getUserIdFromSocket(socket);
 
+  socket.prependAny(async (event, ...args) => {
+    // 사이클 시작, 방 삭제 이벤트 요청시 인증
+    if (
+      event === SOCKET_TIMER_EVENTS.DELETE_ROOM ||
+      event === SOCKET_TIMER_EVENTS.START_CYCLES
+    ) {
+      
+      await socketLoginRequired()(socket);
+
+      return;
+    }
+  });
+
   socket.prependAnyOutgoing(async (event, ...args) => {
     // 사이클이 시작될 때 모든 클라이언트를 인증
     if (event === SOCKET_TIMER_EVENTS.SYNC_IS_RUNNING) {
