@@ -5,7 +5,6 @@ import {
 } from "../../../constants.js";
 import roomService from "../../../services/roomService.js";
 import getAllLinkedUserIdsFromNamespace from "../../helpers/getAllLinkedUserIdsFromNamespace.js";
-import getUserIdFromSocket from "../../helpers/getUserIdFromSocket.js";
 import getRoomIdFromNamespace from "../helpers/getRoomIdFromNamespace.js";
 import onDeleteRoom from "./onDeleteRoom.js";
 import onRoomDetailDisconnect from "./onRoomDetailDisconnect.js";
@@ -13,7 +12,6 @@ import onStartCycles from "./onStartCycles.js";
 
 const onConnection = async (socket) => {
   const roomId = getRoomIdFromNamespace(socket.nsp);
-  const userId = getUserIdFromSocket(socket);
 
   socket.join(roomId);
 
