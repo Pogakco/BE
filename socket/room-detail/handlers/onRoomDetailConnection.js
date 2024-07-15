@@ -25,21 +25,18 @@ const onConnection = async (socket) => {
       getAllLinkedUserIdsFromNamespace(roomDetailNamespace)
     );
 
-  // 로그인 한 유저일 때만 클라이언트에 동기화
-  if (userId) {
-    try {
-      const { users: allParticipants } =
-        await roomService.getRoomUsersAndActiveCount({ roomId });
+  try {
+    const { users: allParticipants } =
+      await roomService.getRoomUsersAndActiveCount({ roomId });
 
-      roomDetailNamespace
-        .to(roomId)
-        .emit(SOCKET_TIMER_EVENTS.SYNC_ALL_PARTICIPANTS, allParticipants);
-    } catch (error) {
-      socket.emit(SOCKET_TIMER_EVENTS.ERROR, {
-        message: SOCKET_TIMER_ERRORS.INTERNAL_SERVER_ERROR,
-      });
-      return;
-    }
+    roomDetailNamespace
+      .to(roomId)
+      .emit(SOCKET_TIMER_EVENTS.SYNC_ALL_PARTICIPANTS, allParticipants);
+  } catch (error) {
+    socket.emit(SOCKET_TIMER_EVENTS.ERROR, {
+      message: SOCKET_TIMER_ERRORS.INTERNAL_SERVER_ERROR,
+    });
+    return;
   }
 
   console.log("A user connected to room:", roomId);
