@@ -1,4 +1,3 @@
-import camelcaseKeys from "camelcase-keys";
 import { SOCKET_TIMER_EVENTS } from "../../../constants.js";
 import timerService from "../../../services/timerService.js";
 import { calculateOnePomodoroMs } from "./calculateMs.js";
@@ -25,14 +24,14 @@ const getPomodoroInterval = ({ socket, roomInfo }) => {
         try {
           console.log(pomodoroCount + 1, "뽀모도로 끝");
 
-          const { increasedCurrentCycles, allParticipants } =
+          const { increasedCurrentCycles, roomUsersAndActiveCount } =
             await timerService.finishPomodoro({ roomId });
 
           roomDetailNamespace
             .to(roomId)
             .emit(
               SOCKET_TIMER_EVENTS.SYNC_ALL_PARTICIPANTS,
-              camelcaseKeys(allParticipants)
+              roomUsersAndActiveCount
             );
           roomDetailNamespace
             .to(roomId)

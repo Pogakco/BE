@@ -3,6 +3,7 @@ import roomRepository from "../repositories/roomRepository.js";
 import timerRepository from "../repositories/timerRepository.js";
 import userRoomRepository from "../repositories/userRoomRepository.js";
 import isEmptyArray from "../utils/isEmptyArray.js";
+import roomService from "./roomService.js";
 
 const timerService = {
   async startTimer({ roomId, userIds }) {
@@ -54,12 +55,10 @@ const timerService = {
         roomId,
       });
 
-      const allParticipants = await userRoomRepository.findParticipants({
-        connection,
-        roomId,
-      });
+      const roomUsersAndActiveCount =
+        await roomService.getRoomUsersAndActiveCount({ roomId });
 
-      return { allParticipants };
+      return { roomUsersAndActiveCount };
     } catch (error) {
       throw error;
     } finally {
@@ -90,12 +89,10 @@ const timerService = {
         roomId,
       });
 
-      const allParticipants = await userRoomRepository.findParticipants({
-        connection,
-        roomId,
-      });
+      const roomUsersAndActiveCount =
+        await roomService.getRoomUsersAndActiveCount({ roomId });
 
-      return { increasedCurrentCycles, allParticipants };
+      return { increasedCurrentCycles, roomUsersAndActiveCount };
     } catch (error) {
       throw error;
     } finally {
