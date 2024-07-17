@@ -26,7 +26,7 @@ export const SOCKET_TIMER_ERRORS = {
   IS_NOT_OWNER: "방장 권한이 없습니다.",
   INTERNAL_SERVER_ERROR: "서버 오류가 발생했습니다.",
   NOT_FOUND_ROOM: "존재하지 않는 방입니다.",
-  PROHIBIT_DELETE_RUNNING_ROOM: "집중 중인 방은 삭제할 수 없습니다.",
+  PROHIBIT_DELETE_RUNNING_ROOM: "사이클이 진행 중인 방은 삭제할 수 없습니다.",
 };
 
 export const DEFAULT_PAGE = 1;
