@@ -26,7 +26,7 @@ export const calculateTimerTotalMsWithDelay = ({
   totalCycles,
   longBreakTime,
 }) => {
-  const delayMs = 5 * SECOND_MS; // 각 클라이언트들의 타이머 종료를 기다리고, 맞지 않는 싱크를 보정하기 위해 사용되는 값
+  const delayMs = 2 * SECOND_MS; // 각 클라이언트들의 타이머 종료를 기다리고, 맞지 않는 싱크를 보정하기 위해 사용되는 값
 
   return (
     calculateTimerTotalMs({
