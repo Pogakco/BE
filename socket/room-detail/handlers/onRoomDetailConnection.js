@@ -14,11 +14,10 @@ import onStartCycles from "./onStartCycles.js";
 const onConnection = async (socket) => {
   registerRoomDetailEventsInterceptor(socket);
 
-  const roomId = getRoomIdFromNamespace(socket.nsp);
-
+  const roomDetailNamespace = socket.nsp;
+  const roomId = getRoomIdFromNamespace(roomDetailNamespace);
   socket.join(roomId);
 
-  const roomDetailNamespace = socket.nsp;
   roomDetailNamespace
     .to(roomId)
     .emit(
