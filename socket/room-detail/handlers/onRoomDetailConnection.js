@@ -6,6 +6,7 @@ import {
 import roomService from "../../../services/roomService.js";
 import getAllLinkedUserIdsFromNamespace from "../../helpers/getAllLinkedUserIdsFromNamespace.js";
 import getRoomIdFromNamespace from "../helpers/getRoomIdFromNamespace.js";
+import getRoomInfoSafety from "../helpers/getRoomInfoSafety.js";
 import registerRoomDetailEventsInterceptor from "../helpers/registerRoomDetailEventsInterceptor.js";
 import onDeleteRoom from "./onDeleteRoom.js";
 import onRoomDetailDisconnect from "./onRoomDetailDisconnect.js";
@@ -24,6 +25,19 @@ const onConnection = async (socket) => {
       SOCKET_TIMER_EVENTS.SYNC_ALL_LINKED_USER_IDS,
       getAllLinkedUserIdsFromNamespace(roomDetailNamespace)
     );
+
+  const { roomInfo, isErrorGetRoomInfo } = await getRoomInfoSafety({
+    socket,
+  });
+  if (isErrorGetRoomInfo) {
+    socket.emit(SOCKET_TIMER_EVENTS.ERROR, {
+      message: SOCKET_TIMER_ERRORS.INTERNAL_SERVER_ERROR,
+    });
+    return;
+  }
+  roomDetailNamespace
+    .to(roomId)
+    .emit(SOCKET_TIMER_EVENTS.SYNC_IS_RUNNING, roomInfo.isRunning);
 
   try {
     const { users: allParticipants } =
