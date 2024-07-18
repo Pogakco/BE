@@ -76,8 +76,8 @@ const createTotalCyclesChain = () => {
     .notEmpty()
     .withMessage("뽀모도로 싸이클 수를 입력해주세요.")
     .bail()
-    .isInt({ min: 1, max: 12 })
-    .withMessage("총 사이클 수는 1에서 12사이여야 합니다.");
+    .isInt({ min: 1, max: 4 })
+    .withMessage("총 사이클 수는 1에서 4 사이여야 합니다.");
 };
 
 const createMaxParticipantsChain = () => {
