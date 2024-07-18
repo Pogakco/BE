@@ -88,14 +88,14 @@ POGAKCO는 **같은 타이머(=뽀모도로)** 를 통해 학습 사이클을 �
 <br>
 
 ### ✔️ 로그인
-![login](https://github.com/user-attachments/assets/a9d3b24a-e2d0-4533-b3a1-ea0b86cd7e69)
+![login](https://github.com/user-attachments/assets/b84677ef-5a0f-493e-89c2-337c8c8426ca)
 
 - 이메일 또는 비밀번호가 틀릴 경우 경고 문구가 나타납니다.
 
 <br>
 
 ### ✔️ 마이페이지
-![mypage](https://github.com/user-attachments/assets/f52b2ce4-03f5-41c9-9b8c-72516a65de0e)
+![mypage](https://github.com/user-attachments/assets/ce27a88d-afff-4f6c-badb-c2eb01fa0c48)
 
 - 로그인 한 유저만 진입할 수 있습니다.
 - 마이페이지로 이동하기 전 비밀번호 확인 페이지를 통해 비밀번호 확인 과정을 거칩니다.
@@ -137,7 +137,8 @@ POGAKCO는 **같은 타이머(=뽀모도로)** 를 통해 학습 사이클을 �
 <br>
 
 ### ✔️ 방 참여하기와 방 관전하기 
-![joinRoom](https://github.com/user-attachments/assets/e0560519-ce16-4f7d-b174-a348cf705d1f)
+
+![joinRoom](https://github.com/user-attachments/assets/773589d4-bd02-4bf5-9ab1-bf17cfc19778)
 
 - 방을 클릭하면 방의 상세 설명을 볼 수 있습니다.
   - 로그인 한 경우 관전하기 버튼과 참가하기 버튼이 표시됩니다.
