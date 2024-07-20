@@ -1,7 +1,9 @@
+import dayjs from "dayjs";
 import {
   SOCKET_DEFAULT_EVENTS,
   SOCKET_TIMER_ERRORS,
   SOCKET_TIMER_EVENTS,
+  TIMESTAMP_FORMAT,
 } from "../../../constants.js";
 import roomService from "../../../services/roomService.js";
 import getAllLinkedUserIdsFromNamespace from "../../helpers/getAllLinkedUserIdsFromNamespace.js";
@@ -9,7 +11,6 @@ import getRoomIdFromNamespace from "../helpers/getRoomIdFromNamespace.js";
 import getRoomInfoSafety from "../helpers/getRoomInfoSafety.js";
 import registerRoomDetailEventsInterceptor from "../helpers/registerRoomDetailEventsInterceptor.js";
 import onDeleteRoom from "./onDeleteRoom.js";
-import onGetServerCurrentTime from "./onGetServerCurrentTime.js";
 import onRoomDetailDisconnect from "./onRoomDetailDisconnect.js";
 import onStartCycles from "./onStartCycles.js";
 
@@ -19,6 +20,14 @@ const onConnection = async (socket) => {
   const roomDetailNamespace = socket.nsp;
   const roomId = getRoomIdFromNamespace(roomDetailNamespace);
   socket.join(roomId);
+
+  // 서버 현재 시각 동기화
+  roomDetailNamespace
+    .to(roomId)
+    .emit(
+      SOCKET_TIMER_EVENTS.SYNC_CURRENT_SERVER_TIME,
+      dayjs().format(TIMESTAMP_FORMAT)
+    );
 
   // 모든 로그인한 유저 정보 동기화
   roomDetailNamespace
@@ -61,9 +70,6 @@ const onConnection = async (socket) => {
 
   // 리스닝 이벤트 등록
   socket.on(SOCKET_TIMER_EVENTS.START_CYCLES, () => onStartCycles(socket));
-  socket.on(SOCKET_TIMER_EVENTS.GET_SERVER_CURRENT_TIME, (callback) =>
-    onGetServerCurrentTime(socket, callback)
-  );
   socket.on(SOCKET_TIMER_EVENTS.DELETE_ROOM, () => onDeleteRoom(socket));
   socket.on(SOCKET_DEFAULT_EVENTS.DISCONNECT, () =>
     onRoomDetailDisconnect(socket)
