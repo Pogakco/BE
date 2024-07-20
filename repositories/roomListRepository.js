@@ -49,7 +49,7 @@ const roomListRepository = {
         values.unshift(userId);
       }
     }
-    
+
     SQL += "GROUP BY rooms.id ";
 
     if (isRunning === "false") {
@@ -57,7 +57,8 @@ const roomListRepository = {
     } else if (isRunning === "true") {
       SQL += `HAVING timers.is_running = 1 `;
     }
-    SQL += "ORDER BY rooms.created_at DESC " // 최신순 정렬
+
+    SQL += "ORDER BY rooms.created_at DESC ";
     SQL += "LIMIT ? OFFSET ?;";
 
     return this.findDataAndTotalElements({ connection, SQL, values });
