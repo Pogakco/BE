@@ -1,7 +1,9 @@
+import dayjs from "dayjs";
 import {
   SOCKET_DEFAULT_EVENTS,
   SOCKET_TIMER_ERRORS,
   SOCKET_TIMER_EVENTS,
+  TIMESTAMP_FORMAT,
 } from "../../../constants.js";
 import roomService from "../../../services/roomService.js";
 import getAllLinkedUserIdsFromNamespace from "../../helpers/getAllLinkedUserIdsFromNamespace.js";
@@ -18,6 +20,14 @@ const onConnection = async (socket) => {
   const roomDetailNamespace = socket.nsp;
   const roomId = getRoomIdFromNamespace(roomDetailNamespace);
   socket.join(roomId);
+
+  // 서버 현재 시각 동기화
+  roomDetailNamespace
+    .to(roomId)
+    .emit(
+      SOCKET_TIMER_EVENTS.SYNC_CURRENT_SERVER_TIME,
+      dayjs().format(TIMESTAMP_FORMAT)
+    );
 
   // 모든 로그인한 유저 정보 동기화
   roomDetailNamespace

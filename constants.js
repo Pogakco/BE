@@ -12,6 +12,7 @@ export const SOCKET_COMMON_EVENTS = {
 
 export const SOCKET_TIMER_EVENTS = {
   SYNC_ALL_LINKED_USER_IDS: "sync-all-linked-user-ids",
+  SYNC_CURRENT_SERVER_TIME: "sync-current-server-time",
   START_CYCLES: "start-cycles",
   SYNC_STARTED_AT: "sync-started-at",
   SYNC_IS_RUNNING: "sync-is-running",
