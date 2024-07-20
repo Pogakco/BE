@@ -8,3 +8,4 @@ services:
       - .env
     environment:
       NODE_ENV: production
+      TZ: "Asia/Seoul"
