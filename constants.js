@@ -5,6 +5,11 @@ export const SOCKET_DEFAULT_EVENTS = {
   DISCONNECT: "disconnect",
 };
 
+export const SOCKET_COMMON_EVENTS = {
+  REQUEST_AUTH: "request-auth",
+  AUTH_ERROR: "auth-error",
+};
+
 export const SOCKET_TIMER_EVENTS = {
   SYNC_ALL_LINKED_USER_IDS: "sync-all-linked-user-ids",
   START_CYCLES: "start-cycles",
@@ -12,6 +17,7 @@ export const SOCKET_TIMER_EVENTS = {
   SYNC_IS_RUNNING: "sync-is-running",
   SYNC_ALL_PARTICIPANTS: "sync-all-participants",
   SYNC_CURRENT_CYCLES: "sync-current-cycles",
+  GET_SERVER_CURRENT_TIME: "get-server-current-time",
   ROOM_DELETED: "room-deleted",
   DELETE_ROOM: "delete-room",
   ERROR: "timer-error",
@@ -21,7 +27,7 @@ export const SOCKET_TIMER_ERRORS = {
   IS_NOT_OWNER: "방장 권한이 없습니다.",
   INTERNAL_SERVER_ERROR: "서버 오류가 발생했습니다.",
   NOT_FOUND_ROOM: "존재하지 않는 방입니다.",
-  PROHIBIT_DELETE_RUNNING_ROOM: "집중 중인 방은 삭제할 수 없습니다.",
+  PROHIBIT_DELETE_RUNNING_ROOM: "사이클이 진행 중인 방은 삭제할 수 없습니다.",
 };
 
 export const DEFAULT_PAGE = 1;
@@ -68,6 +74,7 @@ export const REFRESH_TOKEN_COOKIE_OPTIONS = {
 
 export const AUTHENTICATE_ERROR_TYPE = {
   TOKEN_NOT_FOUND: "TOKEN_NOT_FOUND",
+  EXPIRED_REFRESH_TOKEN: "EXPIRED_REFRESH_TOKEN",
   INVALID_REFRESH_TOKEN: "INVALID_REFRESH_TOKEN",
   INVALID_ACCESS_TOKEN: "INVALID_ACCESS_TOKEN",
 };

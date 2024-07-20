@@ -71,66 +71,76 @@ const userService = {
     }
   },
 
+  /**
+   * 사용자를 인증하고 인증 상태를 반환합니다.
+   *
+   * 이 함수는 주어진 accessToken과 refreshToken을 사용하여 사용자의 인증 상태를 검증합니다.
+   * accessToken이 유효하면 사용자는 바로 인증됩니다. accessToken이 만료된 경우,
+   * refreshToken을 사용하여 accessToken을 갱신하고, 새로운 accessToken으로 사용자를 인증합니다.
+   *
+   * @param {Object} tokens - 인증에 사용될 토큰 객체입니다.
+   * @param {string} tokens.accessToken - 사용자의 액세스 토큰입니다.
+   * @param {string} tokens.refreshToken - 사용자의 리프레시 토큰입니다.
+   * @returns {Promise<{isAuthError: boolean, authErrorType?: string, authErrorMessage?: string, newAccessToken?: string, userId?: number}>} 인증 결과를 나타내는 객체를 프로미스로 반환합니다.
+   *                             반환된 객체는 인증 성공 여부와 새로운 토큰 정보를 포함할 수 있습니다.
+   * @throws {Error} 인증 과정에서 오류가 발생했을 때 예외가 발생합니다.
+   */
   async authenticate({ accessToken, refreshToken }) {
-    const result = {
-      isAuthError: false,
-      authErrorType: null,
-      authErrorMessage: null,
-      newAccessToken: null,
-      newRefreshToken: null,
-      userId: null,
-    };
-
     if (!accessToken || !refreshToken) {
-      result.authErrorType = AUTHENTICATE_ERROR_TYPE.TOKEN_NOT_FOUND;
-      result.isAuthError = true;
-      result.authErrorMessage = "토큰이 존재하지 않습니다.";
-      return result;
+      return {
+        isAuthError: true,
+        authErrorType: AUTHENTICATE_ERROR_TYPE.TOKEN_NOT_FOUND,
+        authErrorMessage: "토큰이 존재하지 않습니다.",
+      };
     }
 
     const refreshTokenInfo = await this.getRefreshTokenInfoByValue({
       refreshToken,
     });
     if (!refreshTokenInfo) {
-      result.authErrorType = AUTHENTICATE_ERROR_TYPE.INVALID_REFRESH_TOKEN;
-      result.isAuthError = true;
-      result.authErrorMessage = "유효하지 않은 리프레시 토큰 입니다.";
-      return result;
+      return {
+        isAuthError: true,
+        authErrorType: AUTHENTICATE_ERROR_TYPE.INVALID_REFRESH_TOKEN,
+        authErrorMessage: "유효하지 않은 리프레시 토큰 입니다.",
+      };
     }
 
     const { user_id: userId, expire_date: refreshTokenExpireDate } =
       refreshTokenInfo;
 
-    result.userId = userId;
+    const isTokenRefreshable = dayjs().isBefore(dayjs(refreshTokenExpireDate));
+    if (!isTokenRefreshable) {
+      await this.deleteRefreshToken({ userId, refreshToken });
+
+      return {
+        isAuthError: true,
+        authErrorType: AUTHENTICATE_ERROR_TYPE.EXPIRED_REFRESH_TOKEN,
+        authErrorMessage: "만료된 리프레시 토큰 입니다.",
+      };
+    }
 
     try {
       const JWT_PRIVATE_KEY = process.env.JWT_PRIVATE_KEY;
       jwt.verify(accessToken, JWT_PRIVATE_KEY);
 
-      return result;
+      return { userId };
     } catch (error) {
-      const isTokenRefreshable =
-        error instanceof jwt.TokenExpiredError &&
-        dayjs().isBefore(dayjs(refreshTokenExpireDate));
-
-      if (isTokenRefreshable) { 
-        result.newAccessToken = this.issueAccessToken({
+      if (error instanceof jwt.TokenExpiredError) {
+        const newAccessToken = this.issueAccessToken({
           userId,
         });
 
-        result.newRefreshToken = await this.reissueRefreshToken({
+        return {
+          newAccessToken,
           userId,
-          refreshToken,
-        });
-
-        return result;
+        };
       }
 
-      result.authErrorType = AUTHENTICATE_ERROR_TYPE.INVALID_ACCESS_TOKEN;
-      result.isAuthError = true;
-      result.authErrorMessage = "유효하지 않은 토큰입니다.";
-
-      return result;
+      return {
+        isAuthError: true,
+        authErrorType: AUTHENTICATE_ERROR_TYPE.INVALID_ACCESS_TOKEN,
+        authErrorMessage: "유효하지 않은 토큰 입니다.",
+      };
     }
   },
 
@@ -241,37 +251,6 @@ const userService = {
         refreshToken,
       });
     } catch (error) {
-      throw error;
-    } finally {
-      connection.release();
-    }
-  },
-
-  async reissueRefreshToken({ userId, refreshToken }) {
-    const connection = await pool.getConnection();
-
-    try {
-      await connection.beginTransaction();
-
-      await userRepository.deleteRefreshToken({
-        connection,
-        userId,
-        refreshToken,
-      });
-
-      const newRefreshToken = randomUUID();
-      await userRepository.createRefreshToken({
-        connection,
-        userId,
-        refreshToken: newRefreshToken,
-      });
-
-      await connection.commit();
-
-      return newRefreshToken;
-    } catch (error) {
-      await connection.rollback();
-
       throw error;
     } finally {
       connection.release();

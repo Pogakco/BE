@@ -8,8 +8,10 @@ import convertSnakeToCamelResponse from "./middlewares/convertSnakeToCamelRespon
 import defaultErrorHandler from "./middlewares/defaultErrorHandler.js";
 import userRouter from "./routers/userRouter.js";
 import createIo from "./socket/helpers/createIo.js";
+import socketLoginRequired from "./socket/middlewares/socketLoginRequired.js";
 import onRoomDetailConnection from "./socket/room-detail/handlers/onRoomDetailConnection.js";
 import roomRouter from "./routers/roomRouter.js";
+import feedbackRouter from "./routers/feedbackRouter.js";
 
 checkDBConnection();
 
@@ -19,7 +21,9 @@ const app = express();
 const server = createServer(app);
 
 const io = createIo(server);
+
 const roomDetailNamespace = io.of(/^\/rooms\/\d+$/);
+roomDetailNamespace.use(socketLoginRequired({ allowAnonymous: true }));
 roomDetailNamespace.on(
   SOCKET_DEFAULT_EVENTS.CONNECTION,
   onRoomDetailConnection
@@ -31,6 +35,7 @@ app.use(cookieParser());
 
 app.use("/", userRouter);
 app.use("/rooms", roomRouter);
+app.use("/feedbacks", feedbackRouter);
 
 app.use(defaultErrorHandler);
 

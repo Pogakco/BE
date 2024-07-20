@@ -136,9 +136,9 @@ const roomController = {
     }
 
     if (room.isRunning) {
-      return res
-        .status(StatusCodes.BAD_REQUEST)
-        .json({ message: "집중 중인 방에는 참여할 수 없습니다." });
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: "사이클이 진행 중인 방은 참여할 수 없습니다.",
+      });
     }
 
     await roomService.joinRoom({ connection, roomId, userId });
