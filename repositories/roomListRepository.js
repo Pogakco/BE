@@ -49,7 +49,7 @@ const roomListRepository = {
         values.unshift(userId);
       }
     }
-    
+
     SQL += "GROUP BY rooms.id ";
 
     if (isRunning === "false") {
@@ -58,6 +58,7 @@ const roomListRepository = {
       SQL += `HAVING timers.is_running = 1 `;
     }
 
+    SQL += "ORDER BY rooms.created_at DESC ";
     SQL += "LIMIT ? OFFSET ?;";
 
     return this.findDataAndTotalElements({ connection, SQL, values });
