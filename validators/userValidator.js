@@ -85,6 +85,14 @@ const userValidator = {
     );
   },
 
+  getSocialSignupValidator() {
+    return createValidator(
+      createEmailChain,
+      createNicknameChain,
+      createProviderChain
+    );
+  },
+
   getLoginValidator() {
     return createValidator(createEmailChain, createLoginPasswordChain);
   },

@@ -158,6 +158,43 @@ const userService = {
     });
   },
 
+  async socialSignup({ email, nickname, provider, socialAccessToken }) {
+    const connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    try {
+      const userId = (
+        await userRepository.createUser({
+          connection,
+          email,
+          nickname,
+          hashedPassword: null,
+          salt: null,
+          isSocialLogin: true,
+        })
+      ).insertId;
+
+      const providerId = await this.getSocialLoginProviderId({
+        socialAccessToken,
+        provider,
+      });
+
+      await userRepository.createSocialLoginInfo({
+        connection,
+        userId,
+        provider,
+        providerId,
+      });
+
+      await connection.commit();
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
+  },
+
   async validateUser({ email, password }) {
     const connection = await pool.getConnection();
 

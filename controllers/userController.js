@@ -79,6 +79,44 @@ const userController = {
     return res.status(StatusCodes.CREATED).end();
   }),
 
+  socialSignup: errorHandler(async (req, res) => {
+    const { connection } = req;
+    const { provider, email, nickname } = req.body;
+
+    const socialAccessToken = req.headers.authorization?.split("Bearer ")[1];
+    if (!socialAccessToken) {
+      return res
+        .status(StatusCodes.UNAUTHORIZED)
+        .json({ message: "토큰이 존재하지 않습니다." });
+    }
+
+    const userByEmail = await userService.getUserByEmail({ connection, email });
+    if (userByEmail) {
+      return res
+        .status(StatusCodes.CONFLICT)
+        .json({ message: "이미 존재하는 이메일 입니다." });
+    }
+
+    const userByNickname = await userService.getUserByNickname({
+      connection,
+      nickname,
+    });
+    if (userByNickname) {
+      return res
+        .status(StatusCodes.CONFLICT)
+        .json({ message: "이미 존재하는 닉네임 입니다." });
+    }
+
+    await userService.socialSignup({
+      email,
+      nickname,
+      provider,
+      socialAccessToken,
+    });
+
+    return res.status(StatusCodes.CREATED).end();
+  }),
+
   login: errorHandler(async (req, res) => {
     const { email, password } = req.body;
 

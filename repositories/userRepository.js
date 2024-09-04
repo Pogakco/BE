@@ -27,11 +27,26 @@ const userRepository = {
     return isEmptyArray(data) ? null : data[0];
   },
 
-  async createUser({ connection, email, nickname, hashedPassword, salt }) {
+  async createUser({
+    connection,
+    email,
+    nickname,
+    hashedPassword,
+    salt,
+    isSocialLogin,
+  }) {
     const SQL =
-      "INSERT INTO `users` (`email`, `nickname`, `password`, `salt`) VALUES (?, ?, ?, ?)";
+      "INSERT INTO `users` (`email`, `nickname`, `password`, `salt`, `is_social_login`) VALUES (?, ?, ?, ?, ?)";
 
-    await connection.query(SQL, [email, nickname, hashedPassword, salt]);
+    const [result] = await connection.query(SQL, [
+      email,
+      nickname,
+      hashedPassword,
+      salt,
+      isSocialLogin ?? false,
+    ]);
+
+    return result;
   },
 
   async updateUser({
@@ -106,6 +121,15 @@ const userRepository = {
     const [data] = await connection.query(SQL, [providerId, provider]);
 
     return isEmptyArray(data) ? null : data[0];
+  },
+
+  async createSocialLoginInfo({ connection, userId, provider, providerId }) {
+    const SQL = `
+      INSERT INTO social_logins (user_id, provider, provider_id)
+      VALUES (?, ?, ?)
+    `;
+
+    await connection.query(SQL, [userId, provider, providerId]);
   },
 };
 
