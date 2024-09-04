@@ -1,3 +1,4 @@
+import axios from "axios";
 import { randomUUID } from "crypto";
 import dayjs from "dayjs";
 import jwt from "jsonwebtoken";
@@ -250,6 +251,49 @@ const userService = {
         userId,
         refreshToken,
       });
+    } catch (error) {
+      throw error;
+    } finally {
+      connection.release();
+    }
+  },
+
+  async getKakaoUserId({ socialAccessToken }) {
+    try {
+      const kakaoUser = (
+        await axios.post(`${process.env.KAKAO_API_URL}/user/me`, null, {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
+            Authorization: `Bearer ${socialAccessToken}`,
+          },
+        })
+      ).data;
+      return kakaoUser.id;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  async getSocialLoginProviderId({ socialAccessToken, provider }) {
+    if (provider === "KAKAO") {
+      return this.getKakaoUserId({ socialAccessToken });
+    }
+  },
+
+  async getSocialLoginInfo({ socialAccessToken, provider }) {
+    const connection = await pool.getConnection();
+
+    try {
+      const providerId = await this.getSocialLoginProviderId({
+        socialAccessToken,
+        provider,
+      });
+      const socialLoginInfo = await userRepository.findSocialLoginInfo({
+        connection,
+        providerId,
+        provider,
+      });
+      return socialLoginInfo;
     } catch (error) {
       throw error;
     } finally {

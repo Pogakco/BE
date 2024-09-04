@@ -93,6 +93,20 @@ const userRepository = {
 
     await connection.query(SQL, [userId, refreshToken]);
   },
+
+  async findSocialLoginInfo({ connection, providerId, provider }) {
+    const SQL = `
+      SELECT *
+      FROM social_logins
+      WHERE
+        provider_id = ?
+        AND provider = ?
+    `;
+
+    const [data] = await connection.query(SQL, [providerId, provider]);
+
+    return isEmptyArray(data) ? null : data[0];
+  },
 };
 
 export default userRepository;

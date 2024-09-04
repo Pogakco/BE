@@ -15,6 +15,12 @@ router.post(
 );
 
 router.post(
+  "/social-auth",
+  [...userValidator.getSocialAuthValidator()],
+  userController.socialAuth
+);
+
+router.post(
   "/signup",
   [...userValidator.getSignupValidator()],
   userController.signup

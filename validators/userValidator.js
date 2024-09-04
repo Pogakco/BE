@@ -13,6 +13,15 @@ const getPasswordRegex = () => {
   );
 };
 
+const createProviderChain = () => {
+  return body("provider")
+    .notEmpty()
+    .withMessage("provider를 입력해 주세요.")
+    .bail()
+    .isIn(["GOOGLE", "KAKAO"])
+    .withMessage("잘못된 provider 입니다.");
+};
+
 const createEmailChain = () => {
   return body("email")
     .notEmpty()
@@ -64,6 +73,10 @@ const createProfileImageChain = () => {
 };
 
 const userValidator = {
+  getSocialAuthValidator() {
+    return createValidator(createProviderChain);
+  },
+
   getSignupValidator() {
     return createValidator(
       createEmailChain,

@@ -20,6 +20,39 @@ const userController = {
     return res.status(StatusCodes.OK).json({ isLogin });
   }),
 
+  socialAuth: errorHandler(async (req, res) => {
+    const { provider } = req.body;
+
+    const socialAccessToken = req.headers.authorization?.split("Bearer ")[1];
+    if (!socialAccessToken) {
+      return res
+        .status(StatusCodes.UNAUTHORIZED)
+        .json({ message: "토큰이 존재하지 않습니다." });
+    }
+
+    const socialLoginInfo = await userService.getSocialLoginInfo({
+      socialAccessToken,
+      provider,
+    });
+    if (!socialLoginInfo?.user_id) {
+      return res.status(StatusCodes.OK).json({ isExistingUser: false });
+    }
+
+    const userId = socialLoginInfo.user_id;
+
+    const accessToken = userService.issueAccessToken({
+      userId,
+    });
+    res.cookie(ACCESS_TOKEN_KEY, accessToken, ACCESS_TOKEN_COOKIE_OPTIONS);
+
+    const refreshToken = await userService.createRefreshToken({
+      userId,
+    });
+    res.cookie(REFRESH_TOKEN_KEY, refreshToken, REFRESH_TOKEN_COOKIE_OPTIONS);
+
+    return res.status(StatusCodes.OK).json({ isExistingUser: true });
+  }),
+
   signup: errorHandler(async (req, res) => {
     const { connection } = req;
     const { email, password, nickname } = req.body;
