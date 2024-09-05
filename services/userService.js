@@ -298,7 +298,7 @@ const userService = {
   async getKakaoUserId({ socialAccessToken }) {
     try {
       const kakaoUser = (
-        await axios.post(`${process.env.KAKAO_API_URL}/user/me`, null, {
+        await axios.post("https://kapi.kakao.com/v2/user/me", null, {
           headers: {
             "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
             Authorization: `Bearer ${socialAccessToken}`,
