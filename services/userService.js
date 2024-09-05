@@ -187,6 +187,8 @@ const userService = {
       });
 
       await connection.commit();
+
+      return userId;
     } catch (error) {
       await connection.rollback();
       throw error;

@@ -107,12 +107,22 @@ const userController = {
         .json({ message: "이미 존재하는 닉네임 입니다." });
     }
 
-    await userService.socialSignup({
+    const userId = await userService.socialSignup({
       email,
       nickname,
       provider,
       socialAccessToken,
     });
+
+    const accessToken = userService.issueAccessToken({
+      userId,
+    });
+    res.cookie(ACCESS_TOKEN_KEY, accessToken, ACCESS_TOKEN_COOKIE_OPTIONS);
+
+    const refreshToken = await userService.createRefreshToken({
+      userId,
+    });
+    res.cookie(REFRESH_TOKEN_KEY, refreshToken, REFRESH_TOKEN_COOKIE_OPTIONS);
 
     return res.status(StatusCodes.CREATED).end();
   }),
