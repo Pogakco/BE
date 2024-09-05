@@ -311,9 +311,28 @@ const userService = {
     }
   },
 
+  async getGoogleUserId({ socialAccessToken }) {
+    try {
+      const googleUser = (
+        await axios.get("https://www.googleapis.com/oauth2/v3/userinfo", {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
+            Authorization: `Bearer ${socialAccessToken}`,
+          },
+        })
+      ).data;
+      return googleUser.sub;
+    } catch (error) {
+      throw error;
+    }
+  },
+
   async getSocialLoginProviderId({ socialAccessToken, provider }) {
     if (provider === "KAKAO") {
       return this.getKakaoUserId({ socialAccessToken });
+    }
+    if (provider === "GOOGLE") {
+      return this.getGoogleUserId({ socialAccessToken });
     }
   },
 
