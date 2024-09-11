@@ -1,3 +1,4 @@
+import axios from "axios";
 import { randomUUID } from "crypto";
 import dayjs from "dayjs";
 import jwt from "jsonwebtoken";
@@ -157,6 +158,45 @@ const userService = {
     });
   },
 
+  async socialSignup({ email, nickname, provider, socialAccessToken }) {
+    const connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    try {
+      const userId = (
+        await userRepository.createUser({
+          connection,
+          email,
+          nickname,
+          hashedPassword: null,
+          salt: null,
+          isSocialLogin: true,
+        })
+      ).insertId;
+
+      const providerId = await this.getSocialLoginProviderId({
+        socialAccessToken,
+        provider,
+      });
+
+      await userRepository.createSocialLoginInfo({
+        connection,
+        userId,
+        provider,
+        providerId,
+      });
+
+      await connection.commit();
+
+      return userId;
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
+  },
+
   async validateUser({ email, password }) {
     const connection = await pool.getConnection();
 
@@ -250,6 +290,68 @@ const userService = {
         userId,
         refreshToken,
       });
+    } catch (error) {
+      throw error;
+    } finally {
+      connection.release();
+    }
+  },
+
+  async getKakaoUserId({ socialAccessToken }) {
+    try {
+      const kakaoUser = (
+        await axios.post("https://kapi.kakao.com/v2/user/me", null, {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
+            Authorization: `Bearer ${socialAccessToken}`,
+          },
+        })
+      ).data;
+      return kakaoUser.id;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  async getGoogleUserId({ socialAccessToken }) {
+    try {
+      const googleUser = (
+        await axios.get("https://www.googleapis.com/oauth2/v3/userinfo", {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
+            Authorization: `Bearer ${socialAccessToken}`,
+          },
+        })
+      ).data;
+      return googleUser.sub;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  async getSocialLoginProviderId({ socialAccessToken, provider }) {
+    if (provider === "KAKAO") {
+      return this.getKakaoUserId({ socialAccessToken });
+    }
+    if (provider === "GOOGLE") {
+      return this.getGoogleUserId({ socialAccessToken });
+    }
+  },
+
+  async getSocialLoginInfo({ socialAccessToken, provider }) {
+    const connection = await pool.getConnection();
+
+    try {
+      const providerId = await this.getSocialLoginProviderId({
+        socialAccessToken,
+        provider,
+      });
+      const socialLoginInfo = await userRepository.findSocialLoginInfo({
+        connection,
+        providerId,
+        provider,
+      });
+      return socialLoginInfo;
     } catch (error) {
       throw error;
     } finally {
